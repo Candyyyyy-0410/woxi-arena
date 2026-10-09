@@ -18122,7 +18122,7 @@ if (typeof module !== 'undefined' && module.exports) {
 </script>
 <script>
 /* 离线缓存 + 自动更新: 电脑上改完重推, 手机下次联网打开就自动换新版 */
-window.__BUILD__ = 'fda489c67a';
+window.__BUILD__ = 'b0d77d40dc';
 (function () {
   if (!('serviceWorker' in navigator) || location.protocol.indexOf('http') !== 0) return;
 
@@ -18144,12 +18144,26 @@ window.__BUILD__ = 'fda489c67a';
   }
   function wcFade(ms) { hideTimer = setTimeout(function () { if (chip) chip.style.opacity = '0'; }, ms); }
 
+  /* 页面这边盯着: 打包中/中断时, 每隔一会儿戳一下后台, 它要是被系统睡了/卡住了就自动接着打 */
+  var pokeTimer = null, pokeN = 0;
+  function wcClearPoke() { if (pokeTimer) { clearInterval(pokeTimer); pokeTimer = null; } pokeN = 0; }
+  function wcSetPoke(interval, max) {
+    if (pokeTimer) return;
+    pokeTimer = setInterval(function () {
+      if (++pokeN > max) { wcClearPoke(); return; }
+      navigator.serviceWorker.getRegistration().then(function (r) {
+        var sw = r && (r.active || r.waiting);
+        if (sw) { try { sw.postMessage({ type: 'wc-start' }); } catch (e) {} }
+      }).catch(function () {});
+    }, interval);
+  }
+
   navigator.serviceWorker.addEventListener('message', function (ev) {
     var d = ev.data || {};
     if (d.type !== 'wc') return;
-    if (d.state === 'done') { wcChip('✓ 离线可玩 · 断网也能开'); wcFade(7000); }
-    else if (d.state === 'running') { wcChip('离线打包 ' + d.done + '/' + d.total + ' …'); }
-    else if (d.state === 'error') { wcChip('离线打包中断 · 下次联网接着打包'); wcFade(7000); }
+    if (d.state === 'done') { wcClearPoke(); wcChip('✓ 离线可玩 · 断网也能开'); wcFade(7000); }
+    else if (d.state === 'running') { wcSetPoke(25000, 240); wcChip('离线打包 ' + d.done + '/' + d.total + ' …'); }
+    else if (d.state === 'error') { wcSetPoke(60000, 8); wcChip('离线打包中断 · 下次联网接着打包'); wcFade(7000); }
   });
 
   window.addEventListener('load', function () {
