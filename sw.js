@@ -1,5 +1,5 @@
 /* 离线缓存: 装到主屏幕后没网也能玩 */
-const CACHE = 'woxi-web-4a3361fe38';
+const CACHE = 'woxi-web-9e81668ff3';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', function (e) {
