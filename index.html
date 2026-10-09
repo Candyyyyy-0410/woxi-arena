@@ -18122,12 +18122,44 @@ if (typeof module !== 'undefined' && module.exports) {
 </script>
 <script>
 /* 离线缓存 + 自动更新: 电脑上改完重推, 手机下次联网打开就自动换新版 */
-window.__BUILD__ = '9e81668ff3';
+window.__BUILD__ = 'e082c64f48';
 (function () {
   if (!('serviceWorker' in navigator) || location.protocol.indexOf('http') !== 0) return;
+
+  /* 左下角小条: 第一次打开把整包(约44MB)打包进手机缓存, 打完断网也能玩 */
+  var chip = null, hideTimer = null;
+  function wcChip(text) {
+    if (!chip) {
+      chip = document.createElement('div');
+      chip.id = 'wcChip';
+      chip.style.cssText = 'position:fixed;left:10px;bottom:32px;z-index:98;pointer-events:none;'
+        + 'font-size:11px;line-height:1;padding:6px 9px;border-radius:9px;letter-spacing:.5px;'
+        + 'background:rgba(20,4,6,.84);color:#ffd9c9;border:1px solid rgba(255,120,90,.35);'
+        + 'box-shadow:0 4px 14px rgba(0,0,0,.35);opacity:0;transition:opacity .5s;';
+      document.body.appendChild(chip);
+    }
+    chip.textContent = text;
+    chip.style.opacity = '1';
+    if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+  }
+  function wcFade(ms) { hideTimer = setTimeout(function () { if (chip) chip.style.opacity = '0'; }, ms); }
+
+  navigator.serviceWorker.addEventListener('message', function (ev) {
+    var d = ev.data || {};
+    if (d.type !== 'wc') return;
+    if (d.state === 'done') { wcChip('✓ 离线可玩 · 断网也能开'); wcFade(7000); }
+    else if (d.state === 'running') { wcChip('离线打包 ' + d.done + '/' + d.total + ' …'); }
+    else if (d.state === 'error') { wcChip('离线打包中断 · 下次联网接着打包'); wcFade(7000); }
+  });
+
   window.addEventListener('load', function () {
     navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function (reg) {
       try { reg.update(); } catch (e) {}
+      (function ping(n) {
+        var sw = reg.active || reg.waiting || navigator.serviceWorker.controller;
+        if (sw) { try { sw.postMessage({ type: 'wc-start' }); } catch (e) {} return; }
+        if (n < 24) setTimeout(function () { ping(n + 1); }, 500);
+      })(0);
     }).catch(function () {});
   });
 })();
