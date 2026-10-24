@@ -1,0 +1,328 @@
+{
+  "generatedAt": "2026-10-24T14:12:20.175Z",
+  "service": {
+    "baseUrl": "http://127.0.0.1:7861",
+    "model": "k2-fsa/OmniVoice",
+    "device": "cpu",
+    "privacy": "offline-local-inference"
+  },
+  "settings": {
+    "language": "Chinese",
+    "guidance_scale": 3.4,
+    "num_step": 24,
+    "speed": 1.02
+  },
+  "placement": {
+    "01-entry": "开始追逃、展示当前英雄与场景后立即播放",
+    "02-close": "追击距离首次降到 4.2 米以下、追兵头像切入时播放一次",
+    "03-hunted": "危险状态首次触发：距离降到 2.2 米以下或噪声达到 82 且本局未播放",
+    "04-last": "最后一回合进入最终一搏前播放",
+    "05-execution": "被擒并进入主游戏处刑画面时播放"
+  },
+  "heroes": [
+    {
+      "key": "hanxin",
+      "name": "韩信",
+      "reference": {
+        "audio_id": "7408c2cc9dc44e17ae166c370c8032e0",
+        "reference_text": "人间快意事，不过再聚首。",
+        "source": "C:\\Users\\31535\\Downloads\\动作语音.wav"
+      },
+      "lines": [
+        {
+          "id": "01-entry",
+          "cue": "开局",
+          "text": "跑。你的命，现在归我。",
+          "file": "hanxin-01-entry.wav",
+          "reusedFrom": null,
+          "resumed": true,
+          "jobId": null,
+          "duration": 2.84,
+          "sampleRate": 24000,
+          "channels": 1,
+          "bits": 16
+        },
+        {
+          "id": "02-close",
+          "cue": "第一次逼近",
+          "text": "再快一点。慢一步，我先砍你的后背。",
+          "file": "hanxin-02-close.wav",
+          "reusedFrom": null,
+          "resumed": true,
+          "jobId": null,
+          "duration": 4.51,
+          "sampleRate": 24000,
+          "channels": 1,
+          "bits": 16
+        },
+        {
+          "id": "03-hunted",
+          "cue": "躲藏与高噪声",
+          "text": "躲好。等我找到你，就把你拖出来。",
+          "file": "hanxin-03-hunted.wav",
+          "reusedFrom": null,
+          "resumed": true,
+          "jobId": null,
+          "duration": 4.21,
+          "sampleRate": 24000,
+          "channels": 1,
+          "bits": 16
+        },
+        {
+          "id": "04-last",
+          "cue": "最后一搏前",
+          "text": "站住。再跑，我把你的腿一寸一寸砸断。",
+          "file": "hanxin-04-last.wav",
+          "reusedFrom": "C:\\Users\\31535\\OneDrive\\文档\\ChatGPT\\CMD1\\outputs\\voice-hanxin-direct-v2\\hanxin-break-legs.wav",
+          "resumed": false,
+          "jobId": null,
+          "duration": 4.95,
+          "sampleRate": 24000,
+          "channels": 1,
+          "bits": 16
+        },
+        {
+          "id": "05-execution",
+          "cue": "被擒处刑",
+          "text": "别急着死。枪拔出来前，你得看着自己的血。",
+          "file": "hanxin-05-execution.wav",
+          "reusedFrom": "C:\\Users\\31535\\OneDrive\\文档\\ChatGPT\\CMD1\\outputs\\voice-hanxin-direct-v2\\hanxin-watch-blood.wav",
+          "resumed": false,
+          "jobId": null,
+          "duration": 5.64,
+          "sampleRate": 24000,
+          "channels": 1,
+          "bits": 16
+        }
+      ]
+    },
+    {
+      "key": "baiqi",
+      "name": "白起",
+      "reference": {
+        "audio_id": "8ef631c8875e4173a46e1573d4f760e8",
+        "reference_text": "记忆破碎成刃，戾煞重铸为魂。",
+        "source": "C:\\Users\\31535\\Downloads\\移动喊话4.wav"
+      },
+      "lines": [
+        {
+          "id": "01-entry",
+          "cue": "开局",
+          "text": "跑。别停。停下来，我撕开你。",
+          "file": "baiqi-01-entry.wav",
+          "reusedFrom": null,
+          "resumed": true,
+          "jobId": null,
+          "duration": 5.27,
+          "sampleRate": 24000,
+          "channels": 1,
+          "bits": 16
+        },
+        {
+          "id": "02-close",
+          "cue": "第一次逼近",
+          "text": "门挡不住我。你躲在后面，也照样得死。",
+          "file": "baiqi-02-close.wav",
+          "reusedFrom": null,
+          "resumed": true,
+          "jobId": null,
+          "duration": 7.47,
+          "sampleRate": 24000,
+          "channels": 1,
+          "bits": 16
+        },
+        {
+          "id": "03-hunted",
+          "cue": "躲藏与高噪声",
+          "text": "我听见你的喘息了。别再让我走近。",
+          "file": "baiqi-03-hunted.wav",
+          "reusedFrom": null,
+          "resumed": true,
+          "jobId": null,
+          "duration": 6.41,
+          "sampleRate": 24000,
+          "channels": 1,
+          "bits": 16
+        },
+        {
+          "id": "04-last",
+          "cue": "最后一搏前",
+          "text": "跪好。下一刀，割开你的喉咙。",
+          "file": "baiqi-04-last.wav",
+          "reusedFrom": null,
+          "resumed": true,
+          "jobId": null,
+          "duration": 5.67,
+          "sampleRate": 24000,
+          "channels": 1,
+          "bits": 16
+        },
+        {
+          "id": "05-execution",
+          "cue": "被擒处刑",
+          "text": "看着我。你的血，会先流干。",
+          "file": "baiqi-05-execution.wav",
+          "reusedFrom": null,
+          "resumed": true,
+          "jobId": null,
+          "duration": 5.27,
+          "sampleRate": 24000,
+          "channels": 1,
+          "bits": 16
+        }
+      ]
+    },
+    {
+      "key": "zhugeliang",
+      "name": "诸葛亮",
+      "reference": {
+        "audio_id": "9d744e6dfad74c6ea11e886188d9e15c",
+        "reference_text": "你让我看到了一种可能。",
+        "source": "C:\\Users\\31535\\Downloads\\诸葛亮_星域神启_动作语音.wav"
+      },
+      "lines": [
+        {
+          "id": "01-entry",
+          "cue": "开局",
+          "text": "跑。让我看看你能撑几步。",
+          "file": "zhugeliang-01-entry.wav",
+          "reusedFrom": null,
+          "resumed": true,
+          "jobId": null,
+          "duration": 1.99,
+          "sampleRate": 24000,
+          "channels": 1,
+          "bits": 16
+        },
+        {
+          "id": "02-close",
+          "cue": "第一次逼近",
+          "text": "脚步近了。你还能跑多久？",
+          "file": "zhugeliang-02-close.wav",
+          "reusedFrom": null,
+          "resumed": true,
+          "jobId": null,
+          "duration": 1.83,
+          "sampleRate": 24000,
+          "channels": 1,
+          "bits": 16
+        },
+        {
+          "id": "03-hunted",
+          "cue": "躲藏与高噪声",
+          "text": "我看见你了。出来，别让我过去拖你。",
+          "file": "zhugeliang-03-hunted.wav",
+          "reusedFrom": null,
+          "resumed": true,
+          "jobId": null,
+          "duration": 2.88,
+          "sampleRate": 24000,
+          "channels": 1,
+          "bits": 16
+        },
+        {
+          "id": "04-last",
+          "cue": "最后一搏前",
+          "text": "站住。再动一下，我切掉你的脚。",
+          "file": "zhugeliang-04-last.wav",
+          "reusedFrom": null,
+          "resumed": true,
+          "jobId": null,
+          "duration": 2.48,
+          "sampleRate": 24000,
+          "channels": 1,
+          "bits": 16
+        },
+        {
+          "id": "05-execution",
+          "cue": "被擒处刑",
+          "text": "别闭眼。刀落下来时，你得看着自己的血。",
+          "file": "zhugeliang-05-execution.wav",
+          "reusedFrom": null,
+          "resumed": true,
+          "jobId": null,
+          "duration": 3.19,
+          "sampleRate": 24000,
+          "channels": 1,
+          "bits": 16
+        }
+      ]
+    },
+    {
+      "key": "shouyue",
+      "name": "百里守约",
+      "reference": {
+        "audio_id": "f4f9ec790f0b43679d1eb2134a4f961e",
+        "reference_text": "你对你的同类，真是毫无情分。",
+        "source": "C:\\Users\\31535\\Downloads\\百里守约_碎云_挑衅.wav"
+      },
+      "lines": [
+        {
+          "id": "01-entry",
+          "cue": "开局",
+          "text": "跑。别让我瞄准第二枪。",
+          "file": "shouyue-01-entry.wav",
+          "reusedFrom": null,
+          "resumed": false,
+          "jobId": "ae3c65575a894b008bf16bd7d7c9dda8",
+          "duration": 1.89,
+          "sampleRate": 24000,
+          "channels": 1,
+          "bits": 16
+        },
+        {
+          "id": "02-close",
+          "cue": "第一次逼近",
+          "text": "枪口已经对着你。再动，就打穿你的腿。",
+          "file": "shouyue-02-close.wav",
+          "reusedFrom": null,
+          "resumed": false,
+          "jobId": "74e7548373924457ad62b0aa91da9faf",
+          "duration": 3.53,
+          "sampleRate": 24000,
+          "channels": 1,
+          "bits": 16
+        },
+        {
+          "id": "03-hunted",
+          "cue": "躲藏与高噪声",
+          "text": "躲好。下一枪，我会打穿你露出来的脑袋。",
+          "file": "shouyue-03-hunted.wav",
+          "reusedFrom": null,
+          "resumed": false,
+          "jobId": "7c1a67987813471493e50bd8147ad639",
+          "duration": 3.89,
+          "sampleRate": 24000,
+          "channels": 1,
+          "bits": 16
+        },
+        {
+          "id": "04-last",
+          "cue": "最后一搏前",
+          "text": "站定。再跑，我先把你的膝盖打碎。",
+          "file": "shouyue-04-last.wav",
+          "reusedFrom": null,
+          "resumed": false,
+          "jobId": "109d4414d5bc4a29b7ed5db1c661f2e2",
+          "duration": 2.97,
+          "sampleRate": 24000,
+          "channels": 1,
+          "bits": 16
+        },
+        {
+          "id": "05-execution",
+          "cue": "被擒处刑",
+          "text": "别求饶。你流出来的血，不会替你说话。",
+          "file": "shouyue-05-execution.wav",
+          "reusedFrom": null,
+          "resumed": false,
+          "jobId": "55d97cff8bce4f93876ae248f29abfd5",
+          "duration": 3.74,
+          "sampleRate": 24000,
+          "channels": 1,
+          "bits": 16
+        }
+      ]
+    }
+  ]
+}

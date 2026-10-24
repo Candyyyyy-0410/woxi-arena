@@ -1664,6 +1664,10 @@
   gap: 8px;
 }
 
+#chaseOverlay .cm-hero-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 #chaseOverlay .cm-pick-card {
   position: relative;
   min-width: 0;
@@ -1755,6 +1759,11 @@
 #chaseOverlay .cm-hero-shouyue {
   background-image: url("generated/chase-shouyue-warehouse-finish-v1-mobile.webp");
   background-position: center 40%;
+}
+
+#chaseOverlay .cm-hero-zhugeliang {
+  background-image: url("generated/chase-zhugeliang-street-entry-v1-mobile.webp");
+  background-position: center 32%;
 }
 
 #chaseOverlay .cm-scene-street {
@@ -1980,5 +1989,422 @@
 
   #chaseOverlay .cm-pick-start {
     min-height: 43px;
+  }
+}
+
+/* CMD113: hunter contracts, loadout and in-run item feedback. */
+#chaseOverlay .cm-picker.loadout-open .cm-picker-head,
+#chaseOverlay .cm-picker.loadout-open > .cm-picker-shell > .cm-picker-content,
+#chaseOverlay .cm-picker.loadout-open > .cm-picker-shell > .cm-pick-start {
+  display: none;
+}
+
+#chaseOverlay .cm-loadout[hidden] {
+  display: none !important;
+}
+
+#chaseOverlay .cm-loadout {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  flex-direction: column;
+  padding-top: 18px;
+}
+
+#chaseOverlay .cm-loadout-head {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+#chaseOverlay .cm-loadout-head h1 {
+  margin: 0;
+  color: #fff4e2;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: clamp(30px, 9vw, 47px);
+  line-height: 1;
+  letter-spacing: .06em;
+}
+
+#chaseOverlay .cm-loadout-head p:last-child {
+  max-width: 580px;
+  margin: 8px 0 0;
+  color: #b9c6c2;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+#chaseOverlay .cm-loadout-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  flex: 1 1 auto;
+  min-height: 0;
+  align-content: start;
+  gap: 10px;
+  margin: 15px -3px 0;
+  padding: 3px 3px 14px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+#chaseOverlay .cm-loadout-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  align-content: start;
+  gap: 9px 10px;
+  min-width: 0;
+  min-height: 184px;
+  padding: 13px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 230, 198, .16);
+  border-radius: 14px;
+  color: #f4eee3;
+  background:
+    radial-gradient(circle at 100% 0, rgba(169, 42, 42, .16), transparent 42%),
+    linear-gradient(155deg, rgba(15, 24, 23, .96), rgba(6, 10, 11, .96));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .035), 0 12px 30px rgba(0, 0, 0, .2);
+}
+
+#chaseOverlay .cm-loadout-card.selected {
+  border-color: rgba(239, 187, 116, .68);
+  box-shadow: 0 0 0 1px rgba(239, 187, 116, .2) inset, 0 14px 34px rgba(0, 0, 0, .32);
+}
+
+#chaseOverlay .cm-loadout-mark,
+#chaseOverlay .cm-item-hud-mark {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(255, 218, 169, .36);
+  border-radius: 50%;
+  color: #eac28f;
+  background: rgba(52, 27, 18, .66);
+  font: 900 11px/1 ui-monospace, monospace;
+}
+
+#chaseOverlay .cm-loadout-card-copy {
+  min-width: 0;
+}
+
+#chaseOverlay .cm-loadout-card-copy b {
+  display: block;
+  color: #fff2df;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 22px;
+  line-height: 1.1;
+  letter-spacing: .04em;
+}
+
+#chaseOverlay .cm-loadout-card-copy p {
+  margin: 5px 0 0;
+  color: #c6c9c2;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+#chaseOverlay .cm-loadout-card-copy small {
+  display: block;
+  margin-top: 7px;
+  color: #e2b27b;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+
+#chaseOverlay .cm-loadout-modes {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+#chaseOverlay .cm-loadout-modes button,
+#chaseOverlay .cm-loadout-remove {
+  min-height: 38px;
+  border: 1px solid rgba(255, 235, 210, .18);
+  border-radius: 9px;
+  color: #e8ddd0;
+  background: rgba(255, 255, 255, .045);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+#chaseOverlay .cm-loadout-modes button[aria-pressed="true"] {
+  border-color: rgba(247, 191, 114, .74);
+  color: #24130e;
+  background: linear-gradient(130deg, #edc38f, #bd7550);
+}
+
+#chaseOverlay .cm-loadout-modes button:disabled {
+  opacity: .34;
+  cursor: not-allowed;
+}
+
+#chaseOverlay .cm-loadout-remove {
+  grid-column: 1 / -1;
+  min-height: 30px;
+  border-color: rgba(226, 90, 80, .26);
+  color: #eaa19b;
+  background: rgba(103, 25, 24, .16);
+}
+
+#chaseOverlay .cm-loadout-foot {
+  display: grid;
+  flex: 0 0 auto;
+  gap: 8px;
+  padding-top: 9px;
+  border-top: 1px solid rgba(255, 239, 217, .09);
+  background: linear-gradient(180deg, rgba(6, 10, 11, .72), rgba(6, 10, 11, .96));
+}
+
+#chaseOverlay .cm-loadout-foot p {
+  min-height: 17px;
+  margin: 0;
+  color: #aebbb7;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+#chaseOverlay .cm-item-hud {
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 6px 8px;
+  border: 1px solid rgba(230, 164, 99, .24);
+  border-radius: 10px;
+  color: #c9a579;
+  background: rgba(6, 13, 13, .78);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .035);
+}
+
+#chaseOverlay .cm-item-hud[hidden] {
+  display: none !important;
+}
+
+#chaseOverlay .cm-item-hud > span {
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .1em;
+  writing-mode: vertical-rl;
+}
+
+#chaseOverlay .cm-item-hud > div {
+  display: flex;
+  min-width: 0;
+  gap: 6px;
+}
+
+#chaseOverlay .cm-item-hud-row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  flex: 1 1 0;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 6px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .045);
+}
+
+#chaseOverlay .cm-item-hud-row.used {
+  opacity: .62;
+}
+
+#chaseOverlay .cm-item-hud-mark {
+  width: 25px;
+  height: 25px;
+  font-size: 9px;
+}
+
+#chaseOverlay .cm-item-hud-copy {
+  min-width: 0;
+}
+
+#chaseOverlay .cm-item-hud-copy b,
+#chaseOverlay .cm-item-hud-copy small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#chaseOverlay .cm-item-hud-copy b {
+  color: #f3e6d4;
+  font-size: 10px;
+}
+
+#chaseOverlay .cm-item-hud-copy small {
+  margin-top: 2px;
+  color: #9eaaa6;
+  font-size: 8px;
+}
+
+#chaseOverlay .cm-item-hud-row button {
+  min-height: 27px;
+  padding: 0 9px;
+  border: 1px solid rgba(240, 190, 125, .45);
+  border-radius: 7px;
+  color: #21110d;
+  background: linear-gradient(130deg, #edc18b, #bd724b);
+  font-size: 9px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+#chaseOverlay .cm-item-hud-row button:disabled {
+  opacity: .45;
+}
+
+#chaseOverlay .cm-item-hud-auto {
+  color: #d8a874;
+  font-size: 8px;
+  font-weight: 900;
+}
+
+#chaseOverlay .cm-controls-alert {
+  grid-column: 1 / -1;
+  margin-bottom: 1px;
+  padding: 6px 8px;
+  border: 1px solid rgba(222, 91, 76, .28);
+  border-radius: 8px;
+  color: #eba59d;
+  background: rgba(88, 22, 22, .24);
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+#chaseOverlay .cm-item-event {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: grid;
+  place-items: center;
+  padding:
+    max(16px, env(safe-area-inset-top))
+    max(14px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom))
+    max(14px, env(safe-area-inset-left));
+  background:
+    radial-gradient(circle at 50% 30%, rgba(111, 24, 23, .3), transparent 48%),
+    rgba(1, 3, 4, .9);
+  backdrop-filter: blur(9px);
+}
+
+#chaseOverlay .cm-item-event[hidden] {
+  display: none !important;
+}
+
+#chaseOverlay .cm-item-event-card {
+  width: min(100%, 590px);
+  max-height: 88vh;
+  max-height: 88dvh;
+  padding: clamp(18px, 5vw, 28px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid rgba(244, 188, 118, .44);
+  border-radius: 18px;
+  color: #f4e9dc;
+  background:
+    linear-gradient(155deg, rgba(25, 19, 16, .98), rgba(5, 9, 10, .99)),
+    #080908;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, .72), inset 0 1px 0 rgba(255, 255, 255, .05);
+  scrollbar-width: thin;
+}
+
+#chaseOverlay .cm-item-event-kicker {
+  margin: 0 0 7px;
+  color: #d39d62;
+  font: 900 9px/1.3 ui-monospace, "Cascadia Mono", monospace;
+  letter-spacing: .18em;
+}
+
+#chaseOverlay .cm-item-event-card h2 {
+  margin: 0;
+  color: #fff2dd;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: clamp(27px, 8vw, 39px);
+  line-height: 1.1;
+  letter-spacing: .05em;
+}
+
+#chaseOverlay .cm-item-event-copy {
+  margin: 17px 0 0;
+  color: #e6dad0;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: clamp(17px, 4.6vw, 21px);
+  line-height: 1.78;
+  letter-spacing: .012em;
+}
+
+#chaseOverlay .cm-item-event-effect {
+  margin: 16px 0 0;
+  padding: 10px 12px;
+  border-left: 3px solid #be5d48;
+  color: #efb79e;
+  background: rgba(106, 28, 25, .2);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+#chaseOverlay .cm-item-event-card .cm-primary {
+  width: 100%;
+  min-height: 47px;
+  margin-top: 18px;
+}
+
+@media (max-width: 560px) {
+  #chaseOverlay .cm-loadout-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  #chaseOverlay .cm-loadout-card {
+    min-height: 0;
+    padding: 11px;
+  }
+
+  #chaseOverlay .cm-loadout-head p:last-child {
+    font-size: 10px;
+  }
+
+  #chaseOverlay .cm-item-hud > div {
+    flex-direction: column;
+  }
+
+  #chaseOverlay .cm-item-hud-row {
+    min-height: 34px;
+  }
+}
+
+@media (max-height: 720px) {
+  #chaseOverlay .cm-loadout {
+    padding-top: 9px;
+  }
+
+  #chaseOverlay .cm-loadout-head h1 {
+    font-size: 27px;
+  }
+
+  #chaseOverlay .cm-loadout-grid {
+    margin-top: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #chaseOverlay .cm-loadout-card,
+  #chaseOverlay .cm-loadout-modes button,
+  #chaseOverlay .cm-item-event,
+  #chaseOverlay .cm-item-hud {
+    transition: none !important;
+    animation: none !important;
   }
 }

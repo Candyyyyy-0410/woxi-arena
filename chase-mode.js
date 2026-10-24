@@ -193,6 +193,161 @@
     ]
   };
 
+  const ROUTE_LEXICON = {
+    street: {
+      quiet: "雨棚后的排水沟",
+      bait: "墙脚的空铁罐",
+      high: "垃圾桶盖和废车顶",
+      gap: "报刊亭与废车之间的夹角",
+      door: "最后的铁门"
+    },
+    castle: {
+      quiet: "拱廊石柱后的湿影",
+      bait: "门口的铁灯笼",
+      high: "断拱下的石栏",
+      gap: "帷幔与窗台之间的夹角",
+      door: "最后的铁闸"
+    },
+    warehouse: {
+      quiet: "货架背面的窄缝",
+      bait: "装卸台上的空油桶",
+      high: "叉车顶盖和货架横梁",
+      gap: "冷库管线与卷帘门之间的夹角",
+      door: "出货卷帘门"
+    }
+  };
+
+  const ROUTE_METRICS = {
+    steady: { progress: [8, 11], distance: .8, noise: -3, stamina: -2 },
+    lure: { progress: [6, 10], distance: .3, noise: 18, stamina: -3 },
+    recon: { progress: [6, 9], distance: .6, noise: -1, stamina: -4 },
+    near: { progress: [11, 15], distance: -.5, noise: 15, stamina: -8, slipAt: 42 },
+    flank: { progress: [8, 12], distance: .8, noise: -3, stamina: -2 },
+    cut: { progress: [11, 15], distance: -.5, noise: 16, stamina: -8, slipAt: 43 },
+    listen: { progress: [6, 10], distance: 1, noise: -4, stamina: -3 },
+    feint: { progress: [7, 11], distance: .6, noise: 10, stamina: -4 },
+    hide: { progress: [7, 10], distance: 1.3, noise: -9, stamina: -5 },
+    racks: { progress: [8, 12], distance: .8, noise: -3, stamina: -2 },
+    aisle: { progress: [11, 15], distance: -.6, noise: 16, stamina: -8, slipAt: 44 },
+    quiet: { progress: [7, 10], distance: 1.1, noise: -7, stamina: -5 }
+  };
+
+  // Each hero reads the same environment differently. These route tables are
+  // composed with scene-specific locations so the four heroes never share the
+  // same visible route choices inside one scene.
+  const HERO_ROUTE_PROFILES = {
+    baiqi: [
+      [
+        ["steady", "quiet", "沿{quiet}切断钩链回声", "让雨声盖住铁链的拖动声", "钩镰在你背后换了方向。", "你贴着排水沟侧移，钩链刮墙的声音忽然断了一拍。"],
+        ["lure", "context", "把{bait}踢向反巷", "用第二处响动骗他收钩", "空罐把追兵引向了另一条巷口。", "空罐撞上卷帘门，你没有往声音那边跑。"],
+        ["recon", "context", "从{high}看钩影", "先记住钩链下一次会从哪边扫来", "你看见钩柄在暗处偏了半寸。", "你借高处看清钩链的弧线，鞋底没有踩碎脚下的玻璃。"],
+        ["near", "risk", "踩{high}抢到墙头", "用一段噪声换出距离", "他听见了你蹬踏金属的声音。", "锈蚀的薄盖在脚下塌陷，你还是先把身体送上了墙头。"]
+      ],
+      [
+        ["steady", "stealth", "把钩链节奏拖慢", "贴住墙根，不跟着他的链节跑", "钩镰在你身侧停了一下。", "你故意漏掉一个步点，墙后的铁链立刻失去准头。"],
+        ["lure", "context", "推倒{bait}制造双声", "让回声从两个方向同时长出", "追兵停在岔口分辨声音。", "铁器滚过地面，另一头的脚步终于慢了半拍。"],
+        ["hide", "stealth", "藏进{gap}听链节", "把呼吸压得比雨还轻", "钩链在遮挡外来回拖动。", "你躲进夹角，听见钩柄在石面上拖出第三道划痕。"],
+        ["recon", "context", "借{gap}突然折返", "等他越过夹角再换方向", "你抢回了一小段侧路。", "他的链影刚扫过去，你便从遮挡后折回了原路。"]
+      ],
+      [
+        ["steady", "quiet", "等钩链过肩再走", "不跟金属声抢同一拍", "钩镰扫空后收得更慢。", "你先让钩链从肩后掠过，才把脚从积水里拔出来。"],
+        ["near", "risk", "抢{high}跨过收束", "借高度抢路，也把噪声交出去", "追兵开始沿你制造的声音收拢。", "你从高处跃下，落地的闷响把整条侧巷都震醒了。"],
+        ["lure", "context", "反踢{bait}引他回钩", "让钩镰去追一件空物", "钩影被偏向了身后。", "你踢翻铁器后立刻反向贴墙，钩镰果然追着响声去了。"],
+        ["recon", "context", "把钩柄卡进{gap}", "狭窄夹角会让长链失去两段距离", "钩链撞在墙边，短暂收不回去。", "你把身形贴近石角，钩柄撞出声响，链节终于乱了。"]
+      ]
+    ],
+    hanxin: [
+      [
+        ["flank", "quiet", "贴墙逼他收枪", "把长枪的长度推回窄道", "枪影从你肩侧擦过。", "你贴着墙根走，枪尖只能被迫向内收。 "],
+        ["cut", "risk", "冲直道抢半拍", "赌速度，也赌枪杆还没转正", "枪线从侧面压住了直道。", "你撞进直线，枪尖已经等在下一步的落点上。"],
+        ["listen", "context", "听枪尾换向", "枪尾磕石的位置会暴露下一次突刺", "你听见枪杆在墙后滑了一下。", "枪尾轻敲石面，你从回声里提前听见了折返。"],
+        ["hide", "stealth", "藏进{gap}等他越过", "不要在他正前方露头", "他越过遮挡时停了一瞬。", "你把身体压进夹角，枪杆贴着遮挡外侧滑过去。"]
+      ],
+      [
+        ["flank", "quiet", "绕{quiet}切到枪杆内侧", "贴身会让长枪来不及回挑", "你绕进了他的枪杆里侧。", "石影吞掉你的肩线，枪尖转向时已经晚了一步。"],
+        ["feint", "context", "故意在{bait}旁露头", "骗他先出枪，再从盲侧换路", "枪锋刺进你留下的空位。", "你把半边肩从遮挡后送出去，枪尖果然先撞上了铁器。"],
+        ["listen", "context", "听枪尾换步", "用两次短停判断他的下一段直线", "枪尾换了第二处落点。", "你没有急着跑，只等枪杆第二次碰地才侧身。"],
+        ["hide", "stealth", "借{gap}反折枪线", "让枪尖从最长距离变成最尴尬的距离", "长枪在夹角里撞上了石壁。", "你贴着夹角折返，枪杆被迫斜着才收得回来。"]
+      ],
+      [
+        ["flank", "quiet", "沿{quiet}逆着他的直线跑", "不走他希望你看的那条路", "枪尖在远处停了半拍。", "你逆着枪线的方向切进暗处，脚步声没有跟上去。"],
+        ["cut", "risk", "踩{high}逼枪杆转向", "借高度冲过刺击平面", "枪锋从下方追到你的鞋边。", "你踩上高处起跳，枪杆在身下扫出一道冷光。"],
+        ["listen", "context", "停一拍听枪尾", "枪尾声重，下一步就会走直线", "枪杆在你身后猛然回挑。", "你听见重音便停住，枪尖从面前空刺过去。"],
+        ["feint", "context", "拉倒{bait}遮断枪影", "让长兵器先被杂物拖住", "枪锋被遮挡拖慢了。", "铁器倒下的声音盖住脚步，你趁那一瞬穿了过去。"]
+      ]
+    ],
+    shouyue: [
+      [
+        ["steady", "quiet", "贴{quiet}压低肩线", "让轮廓混进阴影里", "远处的红点从你头上滑过。", "你把肩线降到雨棚下，准星在墙上多停了一拍。"],
+        ["lure", "context", "打翻{bait}碎掉准星", "用反光引走他的枪口", "枪声偏向了另一处亮点。", "铁器翻倒后的反光很亮，子弹先落在了那边。"],
+        ["recon", "context", "盯反光跑弧线", "不要经过准星停留最久的地方", "你看见红点正在向左移。", "你借着碎玻璃的反光判断枪口，脚下始终不走直线。"],
+        ["near", "risk", "借{gap}缩进射界", "贴近会让步枪失去长距离优势", "他已经开始后退保留射界。", "你贴着夹角压过去，枪口第一次被迫向下。" ]
+      ],
+      [
+        ["steady", "stealth", "沿{quiet}走盲区", "让每一步都藏住身体边缘", "枪机声隔着墙传来。", "你的鞋底没有离开阴影，远处的准星只能慢慢扫过。"],
+        ["lure", "context", "推{bait}挡住枪口", "让遮挡物替你吃掉第一枪", "枪声打在铁器边缘。", "遮挡物被撞翻，子弹从它后面擦出了一串火星。"],
+        ["hide", "stealth", "贴地听枪机复位", "换弹的间隙才能抢距离", "第二声枪响还没落下。", "你数到枪机回弹，才从遮挡后换到下一个落脚点。"],
+        ["recon", "context", "在{high}下折返", "用高处的阴影截断视线", "红点在远处短暂丢失目标。", "你从高处下方折返，枪口只能沿着空墙追过去。"]
+      ],
+      [
+        ["steady", "quiet", "贴着阴影换步", "不给准星留下连续轮廓", "红点在你背后停了很久。", "你每走两步就换一次高度，准星始终慢半拍。"],
+        ["lure", "context", "撞{bait}让枪口偏半寸", "用声音抢先占住他的判断", "远处的枪声终于落后了。", "铁器一响，你便贴着地面冲过去，枪口还在追回声。"],
+        ["near", "risk", "从{high}直冲近身", "逼近射手的身体就是最好的掩体", "枪机已经来不及重新瞄准。", "你从高处落下，枪口的直线在最后一刻失去了意义。"],
+        ["hide", "stealth", "钻{gap}的视线死角", "让枪口只能看见一堵墙", "他在出口前重新架枪。", "你钻进夹角，听见枪托撞墙，却找不到可以穿过去的线。"]
+      ]
+    ],
+    zhugeliang: [
+      [
+        ["steady", "quiet", "踩水听回声推坐标", "用每一声回响判断他下一步", "你的回声替他暴露了一次位置。", "你只踩浅水，等他脚步的回声先撞上墙。"],
+        ["lure", "context", "拨倒{bait}制造假坐标", "让他追一处并不存在的脚步", "他把目光转向了假目标。", "铁器滚开，长影却从另一个方向贴了过去。"],
+        ["recon", "context", "登上{high}看封锁阵线", "先看清环境，再选最薄的一格", "你发现了一处没有影子的出口。", "高处视野把岔路收成几条清楚的线。"],
+        ["near", "risk", "从{gap}斜切近身", "用最短的斜线破坏他的预判", "他收回长影，开始调整封锁。", "你没有沿直线跑，而是贴着夹角切进了他的计算之外。"]
+      ],
+      [
+        ["steady", "quiet", "顺{quiet}的暗流走", "只让水声回答你的方向", "背后的长影停在原地。", "你贴着暗流换步，身后只剩雨声。"],
+        ["lure", "context", "把{bait}推向反方向", "让错误坐标先替他做决定", "一道长影朝反方向压过去。", "铁器滚远，你的脚步却贴着墙根收回。"],
+        ["hide", "stealth", "借{gap}藏住长影", "漂亮而显眼的羽冠必须离开光源", "羽冠的影子终于被遮挡切断。", "你把羽冠和肩线一起沉进夹角，远处只剩一片冷光。"],
+        ["recon", "context", "故意留下湿脚印", "让他看见旧的你，再从新路离开", "他沿着脚印向前，却慢了一步。", "脚印拐进死角，你从另一侧迈了出去。"]
+      ],
+      [
+        ["steady", "quiet", "反走他预判的下一格", "每一个选择都要迟半拍再落点", "长影在假出口前停住。", "你看着他的影子先动，才从相反方向迈步。"],
+        ["near", "risk", "踩{high}破开包围", "用一次强硬位移打乱封锁", "他终于放弃远距离预判。", "你借高处突然下沉，落点砸进了原本封死的夹角。"],
+        ["recon", "context", "折返绕过{door}", "先让他封门，再从封门后离开", "长影已经在门前立好。", "你只让他看见半个肩线，转身却奔向另一条侧路。"],
+        ["hide", "stealth", "贴{door}卡断视线", "把最后一格留给门柱和黑暗", "铁门外的冷光被门柱切开。", "你贴在门柱后，衣摆与羽冠都停在投进来的那道窄光之外。"]
+      ]
+    ]
+  };
+
+  function routeText(value, sceneKey) {
+    return value.replace(/\{(\w+)\}/g, function (match, key) {
+      return (ROUTE_LEXICON[sceneKey] && ROUTE_LEXICON[sceneKey][key]) || match;
+    });
+  }
+
+  function buildHeroRoutePacks(heroKey, sceneKey) {
+    return HERO_ROUTE_PROFILES[heroKey].map(function (wave, waveIndex) {
+      return wave.map(function (route) {
+        const metrics = ROUTE_METRICS[route[0]];
+        return Object.assign({}, metrics, {
+          role: route[0],
+          kind: route[1],
+          label: routeText(route[2], sceneKey),
+          sub: routeText(route[3], sceneKey),
+          hint: routeText(route[4], sceneKey),
+          text: [routeText(route[5], sceneKey)],
+          progress: [metrics.progress[0] + waveIndex, metrics.progress[1] + waveIndex]
+        });
+      });
+    });
+  }
+
+  const HERO_ROUTE_PACKS = {};
+  Object.keys(HERO_ROUTE_PROFILES).forEach(function (heroKey) {
+    Object.keys(ROUTE_LEXICON).forEach(function (sceneKey) {
+      HERO_ROUTE_PACKS[sceneKey + ":" + heroKey] = buildHeroRoutePacks(heroKey, sceneKey);
+    });
+  });
+
   const STREET_MODE = {
     key: "street",
     id: "chase-baiqi",
@@ -278,6 +433,19 @@
   const picker = $("cmPicker");
   const pickerClose = $("cmPickClose");
   const pickerStart = $("cmPickStart");
+  const loadout = $("cmLoadout");
+  const loadoutBack = $("cmLoadoutBack");
+  const loadoutGrid = $("cmLoadoutGrid");
+  const loadoutSummary = $("cmLoadoutSummary");
+  const loadoutStart = $("cmLoadoutStart");
+  const itemHud = $("cmItemHud");
+  const itemHudList = $("cmItemHudList");
+  const itemEvent = $("cmItemEvent");
+  const itemEventKicker = $("cmItemEventKicker");
+  const itemEventTitle = $("cmItemEventTitle");
+  const itemEventCopy = $("cmItemEventCopy");
+  const itemEventEffect = $("cmItemEventEffect");
+  const itemEventContinue = $("cmItemEventContinue");
   const comboTitle = $("cmComboTitle");
   const comboRule = $("cmComboRule");
   const comboRecord = $("cmComboRecord");
@@ -287,6 +455,9 @@
     hero: "baiqi",
     scene: "street"
   };
+  const loadoutSelection = [];
+  let activeLoadout = [];
+  let pendingItemEvent = null;
 
   if (!overlay || !selectOverlay) return;
 
@@ -324,6 +495,13 @@
     finalGambit: false,
     outcome: "",
     recordSaved: false,
+    itemLoadout: [],
+    itemUsed: {},
+    itemEventOpen: false,
+    itemAutoQueue: [],
+    itemAutoTimer: 0,
+    traceTurns: 0,
+    sealTurns: 0,
     mode: CHASE_MODE.id,
     heroKey: CHASE_MODE.heroKey,
     sceneKey: CHASE_MODE.key
@@ -1519,6 +1697,287 @@
     state.bestDistance = Math.max(state.bestDistance, state.distance);
   }
 
+  function itemDefinition(itemId) {
+    const items = window.CHASE_ITEM_BY_ID || {};
+    return items[itemId] || null;
+  }
+
+  function selectedLoadoutEntry(itemId) {
+    return loadoutSelection.filter(function (entry) {
+      return entry.id === itemId;
+    })[0] || null;
+  }
+
+  function itemInputLocked() {
+    return state.itemEventOpen || state.itemAutoQueue.length > 0;
+  }
+
+  function renderLoadout() {
+    if (!loadoutGrid) return;
+    const items = window.CHASE_ITEMS || [];
+    loadoutGrid.innerHTML = items.map(function (item) {
+      const selected = selectedLoadoutEntry(item.id);
+      const full = loadoutSelection.length >= 2 && !selected;
+      return '<article class="cm-loadout-card' + (selected ? " selected" : "") + '" data-item-card="' +
+        item.id + '">' +
+        '<span class="cm-loadout-mark">' + item.mark + '</span>' +
+        '<div class="cm-loadout-card-copy"><b>' + item.name + '</b><p>' + item.preview + '</p>' +
+        '<small>' + item.effect + '</small></div>' +
+        '<div class="cm-loadout-modes">' +
+        '<button type="button" data-item-mode="assist" data-item-id="' + item.id + '"' +
+        (full ? " disabled" : "") + ' aria-pressed="' +
+        (selected && selected.mode === "assist" ? "true" : "false") + '">我递给他</button>' +
+        '<button type="button" data-item-mode="auto" data-item-id="' + item.id + '"' +
+        (full ? " disabled" : "") + ' aria-pressed="' +
+        (selected && selected.mode === "auto" ? "true" : "false") + '">他自己用</button>' +
+        '</div>' +
+        (selected
+          ? '<button type="button" class="cm-loadout-remove" data-item-remove="' + item.id +
+            '">撤下这件</button>'
+          : "") +
+        '</article>';
+    }).join("");
+
+    if (loadoutSummary) {
+      loadoutSummary.textContent = loadoutSelection.length
+        ? "已选 " + loadoutSelection.length + " / 2 件：" + loadoutSelection.map(function (entry) {
+          const item = itemDefinition(entry.id);
+          return (item ? item.name : entry.id) + (entry.mode === "assist" ? "（我递给他）" : "（他自己用）");
+        }).join("、")
+        : "未选择道具。可以直接开始，也可以带最多两件再走。";
+    }
+    if (loadoutStart) {
+      loadoutStart.textContent = loadoutSelection.length
+        ? "开始追逃 · 带 " + loadoutSelection.length + " 件道具"
+        : "开始追逃 · 不带道具";
+    }
+  }
+
+  function chooseLoadoutItem(itemId, mode) {
+    if (!itemDefinition(itemId) || (mode !== "assist" && mode !== "auto")) return;
+    const existing = selectedLoadoutEntry(itemId);
+    if (existing) {
+      existing.mode = mode;
+    } else {
+      if (loadoutSelection.length >= 2) return;
+      loadoutSelection.push({ id: itemId, mode: mode });
+    }
+    renderLoadout();
+  }
+
+  function removeLoadoutItem(itemId) {
+    const index = loadoutSelection.findIndex(function (entry) {
+      return entry.id === itemId;
+    });
+    if (index >= 0) loadoutSelection.splice(index, 1);
+    renderLoadout();
+  }
+
+  function openLoadout() {
+    if (!loadout || !picker) return;
+    state.itemEventOpen = false;
+    state.itemAutoQueue = [];
+    if (state.itemAutoTimer) window.clearTimeout(state.itemAutoTimer);
+    state.itemAutoTimer = 0;
+    picker.hidden = false;
+    picker.classList.add("loadout-open");
+    loadout.hidden = false;
+    renderLoadout();
+    const firstMode = loadoutGrid && loadoutGrid.querySelector("[data-item-mode]");
+    if (firstMode) firstMode.focus();
+  }
+
+  function closeLoadout() {
+    if (!picker) return;
+    picker.classList.remove("loadout-open");
+    if (loadout) loadout.hidden = true;
+    if (pickerStart) pickerStart.focus();
+  }
+
+  function beginLoadedRun() {
+    activeLoadout = loadoutSelection.map(function (entry) {
+      return { id: entry.id, mode: entry.mode };
+    });
+    enterCombo(getComboMode(selection.hero, selection.scene));
+  }
+
+  function itemModeLabel(mode) {
+    return mode === "assist" ? "我递给他" : "他自己用";
+  }
+
+  function itemEffectLine(item, entry) {
+    let line = item.effect;
+    if (item.id === "gap" && state.distance <= 1.8) {
+      line += "。这一下会把你直接拖进他的手里";
+    } else if (item.id === "capture") {
+      line += "。反馈结束后直接进入处刑";
+    }
+    return line;
+  }
+
+  function renderItemHud() {
+    if (!itemHud || !itemHudList) return;
+    const items = state.itemLoadout || [];
+    if (!items.length || state.ended || state.executing) {
+      itemHud.hidden = true;
+      itemHudList.innerHTML = "";
+      return;
+    }
+    itemHud.hidden = false;
+    itemHudList.innerHTML = items.map(function (entry) {
+      const item = itemDefinition(entry.id);
+      if (!item) return "";
+      const used = !!entry.used;
+      const auto = entry.mode === "auto";
+      const status = used
+        ? "已生效"
+        : (auto ? "开局自动生效" : "等你亲手递过去");
+      return '<div class="cm-item-hud-row' + (used ? " used" : "") + '">' +
+        '<span class="cm-item-hud-mark">' + item.mark + '</span>' +
+        '<span class="cm-item-hud-copy"><b>' + item.name + '</b><small>' +
+        itemModeLabel(entry.mode) + " · " + status + '</small></span>' +
+        (auto
+          ? '<span class="cm-item-hud-auto">自动</span>'
+          : '<button type="button" data-item-use="' + entry.id + '"' +
+            (used || state.hidden || itemInputLocked() ? " disabled" : "") + '>' +
+            (used ? "已交付" : "交付") + '</button>') +
+        '</div>';
+    }).join("");
+  }
+
+  function openItemEvent(entry, source) {
+    if (!itemEvent || !entry || state.ended || state.executing) return false;
+    const item = itemDefinition(entry.id);
+    if (!item || entry.used) return false;
+    const copy = window.CHASE_ITEM_COPY &&
+      window.CHASE_ITEM_COPY[CHASE_MODE.heroKey] &&
+      window.CHASE_ITEM_COPY[CHASE_MODE.heroKey][item.id];
+    if (!copy) return false;
+    pendingItemEvent = { entry: entry, source: source };
+    state.itemEventOpen = true;
+    itemEventKicker.textContent = source === "assist"
+      ? "HUNTER ITEM / 你亲手递过去"
+      : "HUNTER ITEM / 他自己取用";
+    itemEventTitle.textContent = CHASE_MODE.heroName + " · " + item.name;
+    itemEventCopy.textContent = copy[source === "assist" ? "assist" : "auto"];
+    itemEventEffect.textContent = itemEffectLine(item, entry);
+    itemEventContinue.textContent = item.id === "capture" ||
+      (item.id === "gap" && state.distance <= 1.8)
+      ? "拖进处刑"
+      : "继续逃";
+    itemEvent.hidden = false;
+    controls.querySelectorAll("button").forEach(function (button) {
+      button.disabled = true;
+    });
+    hotspot.hidden = true;
+    interact.hidden = true;
+    renderItemHud();
+    window.setTimeout(function () {
+      if (itemEventContinue && !itemEvent.hidden) itemEventContinue.focus();
+    }, 30);
+    return true;
+  }
+
+  function applyItemEffect(entry, source) {
+    const item = itemDefinition(entry.id);
+    if (!item || entry.used) return false;
+    entry.used = true;
+    state.itemUsed[entry.id] = source;
+    const scene = sceneForProgress(state.progress);
+    let progressDelta = 0;
+    let distanceDelta = 0;
+    let noiseDelta = 0;
+    let caught = false;
+    let note = itemModeLabel(source === "assist" ? "assist" : "auto");
+
+    if (item.id === "trace") {
+      state.traceTurns = Math.max(state.traceTurns, 3);
+      noiseDelta = 5;
+      note += "：位置暴露 3 回合；藏匿收益被压低，噪声增长更快。";
+    } else if (item.id === "gap") {
+      distanceDelta = -1.8;
+      noiseDelta = 4;
+      state.distance = clamp(state.distance + distanceDelta, 0, 9);
+      caught = state.distance <= 0;
+      note += "：追兵距离缩短 1.8 m" + (caught ? "，当场被截住。" : "。");
+    } else if (item.id === "seal") {
+      state.sealTurns = Math.max(state.sealTurns, 2);
+      note += "：接下来 2 回合，每个阶段都有一条稳妥路线被封死。";
+    } else if (item.id === "capture") {
+      state.distance = 0;
+      caught = true;
+      note += "：锁扣合拢，追兵抓住你并直接转入处刑。";
+    }
+
+    state.noise = clamp(state.noise + noiseDelta, 0, 100);
+    updateRunMetrics();
+    recordRoute(
+      scene,
+      "item-" + item.id,
+      item.name,
+      "item",
+      actualMetrics(progressDelta, distanceDelta, noiseDelta, 0),
+      note
+    );
+    return caught;
+  }
+
+  function finishItemEvent() {
+    if (!state.itemEventOpen || !pendingItemEvent) return;
+    const current = pendingItemEvent;
+    pendingItemEvent = null;
+    state.itemEventOpen = false;
+    itemEvent.hidden = true;
+    const caught = applyItemEffect(current.entry, current.source);
+    renderItemHud();
+    if (caught) {
+      endGame("caught",
+        CHASE_MODE.heroName + "接受了这份契约。" + itemDefinition(current.entry.id).name +
+        "合拢之后，他没有再给你继续逃的机会。");
+      return;
+    }
+    scheduleNextAutoItem(110);
+    render();
+  }
+
+  function triggerItem(itemId) {
+    if (!state.active || state.ended || state.executing || state.hidden || itemInputLocked()) return;
+    const entry = (state.itemLoadout || []).filter(function (item) {
+      return item.id === itemId && item.mode === "assist" && !item.used;
+    })[0];
+    if (entry) openItemEvent(entry, "assist");
+  }
+
+  function scheduleNextAutoItem(delay) {
+    if (state.itemAutoTimer) window.clearTimeout(state.itemAutoTimer);
+    state.itemAutoTimer = 0;
+    if (!state.itemAutoQueue.length || state.ended) return;
+    state.itemAutoTimer = window.setTimeout(function () {
+      state.itemAutoTimer = 0;
+      while (state.itemAutoQueue.length && !state.ended) {
+        const itemId = state.itemAutoQueue.shift();
+        const entry = (state.itemLoadout || []).filter(function (item) {
+          return item.id === itemId && item.mode === "auto" && !item.used;
+        })[0];
+        if (!entry) continue;
+        if (openItemEvent(entry, "auto")) return;
+      }
+      render();
+    }, delay == null ? 260 : delay);
+  }
+
+  function queueAutomaticItems() {
+    if (state.itemAutoTimer) window.clearTimeout(state.itemAutoTimer);
+    state.itemAutoTimer = 0;
+    state.itemAutoQueue = (state.itemLoadout || []).filter(function (entry) {
+      return entry.mode === "auto" && !entry.used;
+    }).map(function (entry) {
+      return entry.id;
+    });
+    if (state.itemAutoQueue.length) scheduleNextAutoItem(260);
+    renderItemHud();
+  }
+
   function actionMetrics(action) {
     if (action.hide) return "暴露归零 · 体力 +7 · 噪声随屏息变化";
     const range = action.progress || [0, 0];
@@ -1811,6 +2270,7 @@
     baiqi: {
       key: "baiqi",
       name: "白起",
+      routeStyle: "断声围猎",
       rule: "听声辨位，噪声越高越容易被钩镰截住。",
       startHint: "压低噪声、留足体力，再借侧路躲开钩镰的收束。",
       captureLines: [
@@ -1829,6 +2289,7 @@
     hanxin: {
       key: "hanxin",
       name: "韩信",
+      routeStyle: "折线截杀",
       rule: "擅长直线截击，冒险冲刺会被枪线提前惩罚。",
       startHint: "少走冒险直线，先逼他换路，再用侧廊或窄巷切断枪线。",
       captureLines: [
@@ -1847,6 +2308,7 @@
     shouyue: {
       key: "shouyue",
       name: "守约",
+      routeStyle: "视线封锁",
       rule: "占据长距离视线，在开阔直线提前压近；货架、侧室和窄巷能切断瞄准线。",
       startHint: "不要在主通道连续露头。借货架或夹角切断瞄准线，再逼他进入近身范围。",
       captureLines: [
@@ -1860,6 +2322,26 @@
         if (state.noise >= 44) state.distance -= .35;
         if (state.noise >= 64) state.distance -= .7;
         if (state.noise >= 82) state.distance -= 1.15;
+      }
+    },
+    zhugeliang: {
+      key: "zhugeliang",
+      name: "诸葛亮",
+      routeStyle: "回声预判",
+      rule: "借回声和路线习惯提前封口；重复同一条思路或连续制造明显声响，会被他先一步算到。",
+      startHint: "不要连续走同一种路线。先用环境声藏住脚步，再在他的预判落点上突然折返。",
+      captureLines: [
+        "长柄在地面停住时，你已经踩进他预设的位置。羽冠后的冷光压下来，所有退路同时收成一格。",
+        "诸葛亮没有急着追。他只用长影封住最后一条岔路，等你亲手走进那处早已算好的死角。"
+      ],
+      dangerCopies: ["长影还在远处", "他已经抬起了长柄", "你的退路正在被合并", "羽冠后的冷光贴住了背后"],
+      pursuit: function () {
+        state.distance -= .48;
+        state.noise = clamp(state.noise - 2.7, 0, 100);
+        if (state.noise >= 52) state.distance -= .38;
+        if (state.noise >= 72) state.distance -= .78;
+        if (state.noise >= 88) state.distance -= 1.05;
+        if (state.stamina <= 28) state.distance -= .32;
       }
     }
   };
@@ -1924,6 +2406,24 @@
       racks: "chase-shouyue-warehouse-racks-v1",
       service: "chase-shouyue-warehouse-service-v1",
       finish: "chase-shouyue-warehouse-finish-v1"
+    },
+    "zhugeliang:street": {
+      entry: "chase-zhugeliang-street-entry-v1",
+      flooded: "chase-zhugeliang-street-flooded-v1",
+      gate: "chase-zhugeliang-street-gate-v1",
+      finish: "chase-zhugeliang-street-finish-v1"
+    },
+    "zhugeliang:castle": {
+      entry: "chase-zhugeliang-castle-entry-v1",
+      gallery: "chase-zhugeliang-castle-gallery-v1",
+      undercroft: "chase-zhugeliang-castle-undercroft-v1",
+      finish: "chase-zhugeliang-castle-finish-v1"
+    },
+    "zhugeliang:warehouse": {
+      entry: "chase-zhugeliang-warehouse-entry-v1",
+      racks: "chase-zhugeliang-warehouse-racks-v1",
+      service: "chase-zhugeliang-warehouse-service-v1",
+      finish: "chase-zhugeliang-warehouse-finish-v1"
     }
   };
 
@@ -1936,7 +2436,10 @@
     "shouyue:castle": "地下蓄水间的每一次滴水都在替你倒计时。守约守在拱洞尽头，步枪的准星贴着水面移动，把你从一处石柱赶向下一处。冷雾里没有真正的死角；等你听见枪机复位，子弹已经穿开雾气，把出口前的最后一块石阶染黑。",
     "baiqi:warehouse": "货架把视线切成一条条窄缝，铁皮又把脚步放大成整座仓库的回声。白起拖着钩镰穿过装卸平台，根本不和你抢直线；他只要守住每个拐角，让你自己撞进倒下的铁笼。叉车边的积水映出他的靴尖时，肩上的钩已经咬住了衣领。",
     "hanxin:warehouse": "主通道顶灯坏了半边，长枪却在冷雾中露出一条完整的银线。韩信把货架拐角当成诱饵，故意让你听见远处脚步，再从前一排空架后横刺出来。枪锋划开纸箱与血肉的声音一样闷；你退得越急，身后的卷帘门就锁得越死。",
-    "shouyue:warehouse": "冷库管线漏出的白雾贴着地面爬，守约的枪口就藏在雾后。货架尽头、叉车上方、出货口边缘，每一个可能逃开的缝隙都被准星提前封住。你踩过格栅时，回声把位置交给整座仓库；下一声枪响贴着耳侧落下，前面的门轨已经溅满血。"
+    "shouyue:warehouse": "冷库管线漏出的白雾贴着地面爬，守约的枪口就藏在雾后。货架尽头、叉车上方、出货口边缘，每一个可能逃开的缝隙都被准星提前封住。你踩过格栅时，回声把位置交给整座仓库；下一声枪响贴着耳侧落下，前面的门轨已经溅满血。",
+    "zhugeliang:street": "雨声把整条积水街变成一盘会回响的棋。诸葛亮不急，他站在灯下让羽冠的长影越过巷口，再用每一步回声替你标出下一步。你以为甩开了他，转角却只有一扇慢慢合紧的铁门；长柄从背后落下时，积水里最后一道路也被压成了黑色。",
+    "zhugeliang:castle": "古堡长廊里没有真正的死角，只有还没被他算到的那一格。诸葛亮让铁灯笼的影子横在门厅，让湿石阶的回声一次一次把你的位置送进深处。等你扑向铁闸，长柄已经先一步卡进锁扣；羽冠后的冷光贴住后背，闸门与退路在同一个声音里合死。",
+    "zhugeliang:warehouse": "货架在冷雾里像一排排沉默的坐标，诸葛亮从左到右慢慢走，连你的呼吸都被铁皮地面传成回声。你躲过一次，下一次选择却更像他预先放在那里的答案。等卷帘门升起一半，他那道带着羽冠的长影已经先压在出口前；长柄扫过门轨，最后那点光也被断成两截。"
   };
 
   // The four routes are authored around the original hero. Cross combinations
@@ -1981,6 +2484,15 @@
         stock: "枪托",
         glint: "准星反光",
         sound: "枪声"
+      },
+      zhugeliang: {
+        line: "预判线",
+        weapon: "长柄",
+        tip: "柄端",
+        sight: "长影",
+        stock: "柄尾",
+        glint: "羽冠后的冷光",
+        sound: "回声"
       }
     }[toHero];
     text = text.replace(/\u0000CHASE_HERO\u0000/g, hero.name);
@@ -1992,7 +2504,7 @@
     text = text.replace(/\u0000CHASE_GLINT\u0000/g, words.glint);
     text = text.replace(/\u0000CHASE_SOUND\u0000/g, words.sound);
     if (toHero === "baiqi") text = text.replace(/枪/g, "镰");
-    else text = text.replace(/镰/g, "枪");
+    else if (toHero === "hanxin" || toHero === "shouyue") text = text.replace(/镰/g, "枪");
     return text;
   }
 
@@ -2083,8 +2595,20 @@
         : sceneBase.startText,
       shouyue: isWarehouse
         ? "装卸平台、货架迷宫、冷库管线区、出货闸门。守约会占据货架尽头和出货口，用长距离瞄准线提前压近；钻窄缝、切视线，才有机会把他拖进近身范围。"
-        : sceneBase.startText
+        : sceneBase.startText,
+      zhugeliang: isWarehouse
+        ? "装卸平台、货架迷宫、冷库管线区和最后一道卷帘门。诸葛亮会借铁皮回声、叉车报警和冷雾长影预判你的下一格路线；重复同一种走法会被提前封口，临时折返和假坐标才能打乱他的收束。"
+        : (isCastle
+          ? "古堡门厅、拱窗长廊、地下蓄水间和城门闸室。诸葛亮会把湿石回声、帷幔长影和闸链声拼成一张封锁图；不要让他连续猜中两次，借侧廊夹角和假脚印把他的计算拖慢。"
+          : "雨夜旧街、积水街心、铁门巷和最后出口。诸葛亮会借水声、灯下长影和巷口回声推算下一步；避开重复路线，利用垃圾桶盖、废车顶和窄巷制造假坐标，才能抢出他的收束。")
     }[heroKey];
+    const heroNarration = heroKey === "zhugeliang"
+      ? (isWarehouse
+        ? "诸葛亮站在装卸平台尽头，银白羽冠被冷雾托起，长柄轻点铁皮地面。每一次回声落下，他都像在替你提前写好下一步。"
+        : (isCastle
+          ? "诸葛亮停在古堡门厅尽头，羽冠的长影越过湿石，长柄没有触地。拱窗外的冷光只照亮他的半张脸，退路却已经被影子切开。"
+          : "诸葛亮从雨幕深处走来，银白羽冠后的冷光贴着旧街。长柄没有发出一点声音，积水却先替他报出了你的位置。"))
+      : rewriteHeroNarrative(sceneBase.startNarration, sceneBase.heroKey, heroKey);
     const sceneKicker = isWarehouse
       ? "ABANDONED WAREHOUSE"
       : (isCastle ? "CASTLE UNDERCROFT" : "FLOODED STREET");
@@ -2100,12 +2624,12 @@
       eyebrow: "CHASE / 本人模式 · " + scene.name,
       brand: scene.name + "追逃",
       statusLabel: "与" + hero.name + "的距离",
-      startSeal: heroKey === "baiqi" ? "03" : (heroKey === "hanxin" ? "04" : "05"),
+      startSeal: heroKey === "baiqi" ? "03" : (heroKey === "hanxin" ? "04" : (heroKey === "shouyue" ? "05" : "06")),
       startKicker: "CROSS CHASE / " + sceneKicker,
       startTitle: scene.name + "追逃",
       startText: rewriteHeroNarrative(heroStart, sceneBase.heroKey, heroKey),
-      startNote: hero.rule + " 场景、追击规则、结局口吻和遭遇镜头都来自当前组合。",
-      startNarration: rewriteHeroNarrative(sceneBase.startNarration, sceneBase.heroKey, heroKey),
+      startNote: "路线「" + hero.routeStyle + "」 · " + hero.rule + " 场景、追击规则、结局口吻和遭遇镜头都来自当前组合。",
+      startNarration: heroNarration,
       startHint: hero.startHint,
       controlsLabel: "当前" + scene.name + "区域可选行动",
       hideLabel: sceneBase.hideLabel,
@@ -2125,25 +2649,31 @@
             ? "你借前面留下的余地压进" + exitName + "。白起的钩镰擦过肩甲，没有扣住你。"
             : (heroKey === "hanxin"
               ? "你借侧路留下的空档切进" + exitName + "。韩信的长枪擦过门框，没有来得及回挑。"
-              : "你借货架和叉车切断了瞄准线，贴着" + exitName + "钻出去。守约的最后一枪只打中门框。"))
+              : (heroKey === "shouyue"
+                ? "你借货架和叉车切断了瞄准线，贴着" + exitName + "钻出去。守约的最后一枪只打中门框。"
+                : "你从诸葛亮算好的下一格之外切进" + exitName + "。长柄擦过羽冠后的冷光，却慢了半拍。")))
           : (heroKey === "baiqi"
             ? "你几乎是摔出" + exitName + "的。白起已经追到伸手可及的位置，钩镰还是慢了半步。"
             : (heroKey === "hanxin"
               ? "你几乎是被" + exitName + "带出去的。韩信追到枪尖可及的位置，闸链还是先一步断开。"
-              : "你几乎是滚出" + exitName + "的。守约已经追到射界边缘，最后一条瞄准线还是被门框截断。"));
+              : (heroKey === "shouyue"
+                ? "你几乎是滚出" + exitName + "的。守约已经追到射界边缘，最后一条瞄准线还是被门框截断。"
+                : "你几乎是撞出" + exitName + "的。诸葛亮已经追到长柄可及的位置，羽冠后的冷光还是迟了一瞬。")));
       },
       finalGambitFail: heroKey === "baiqi"
         ? "你在最后一刻扑向出口。钩镰先扣住肩膀，把你从门缝前硬生生拖回" + (isWarehouse ? "货架区" : (isCastle ? "石廊" : "雨里")) + "。"
         : (heroKey === "hanxin"
           ? "你扑向出口，枪杆却先横在门前。韩信把你从门槛拖回" + (isWarehouse ? "出货区" : (isCastle ? "长廊" : "积水")) + "。"
-          : "你刚把身体探进门缝，远处的枪声就把退路钉死。守约从货架尽头压过来，把你拖回" + (isWarehouse ? "出货平台" : (isCastle ? "闸室" : "积水")) + "。"),
+          : (heroKey === "shouyue"
+            ? "你刚把身体探进门缝，远处的枪声就把退路钉死。守约从货架尽头压过来，把你拖回" + (isWarehouse ? "出货平台" : (isCastle ? "闸室" : "积水")) + "。"
+            : "你刚踏出门缝，长柄已经横在颈后。诸葛亮把你拖回" + (isWarehouse ? "冷雾货道" : (isCastle ? "铁闸阴影" : "黑水巷口")) + "，眼前只剩羽冠投下的一格黑影。")),
       hideFailure: function (failedScene) {
         return {
           message: failedScene && failedScene.hide && failedScene.hide.fail
             ? failedScene.hide.fail
             : "藏身处被你的呼吸顶响。外面的脚步停了。",
           hint: hero.name + "已经确认你在这里。",
-          caught: "你没能压住那一下喘息。" + (heroKey === "baiqi" ? "钩镰" : (heroKey === "hanxin" ? "枪杆" : "枪口")) + "挑开遮挡时，退路已经被封死。"
+          caught: "你没能压住那一下喘息。" + (heroKey === "baiqi" ? "钩镰" : (heroKey === "hanxin" ? "枪杆" : (heroKey === "shouyue" ? "枪口" : "长柄"))) + "挑开遮挡时，退路已经被封死。"
         };
       },
       hideReleaseHint: "手指松开的一瞬漏出呼吸。" + hero.name + "的脚步声没有继续往远处走。",
@@ -2179,7 +2709,7 @@
         result[level] = hero.name + " · " + stageName[level] + " · " + stageTag[level];
         return result;
       }, {}),
-      pickerRule: hero.rule + " " + scene.rule,
+      pickerRule: "路线「" + hero.routeStyle + "」 · " + hero.rule + " " + scene.rule,
       pickerIntro: COMBO_INTROS[heroKey + ":" + sceneKey] || (hero.rule + " " + scene.rule)
     });
     return mode;
@@ -2196,6 +2726,9 @@
   CHASE_MODES.castle.shouyue = buildCrossMode("shouyue", "castle");
   ["baiqi", "hanxin", "shouyue"].forEach(function (heroKey) {
     CHASE_MODES.warehouse[heroKey] = buildCrossMode(heroKey, "warehouse");
+  });
+  ["street", "castle", "warehouse"].forEach(function (sceneKey) {
+    CHASE_MODES[sceneKey].zhugeliang = buildCrossMode("zhugeliang", sceneKey);
   });
 
   function getComboMode(heroKey, sceneKey) {
@@ -2218,6 +2751,9 @@
     if (value === "chase-baiqi-warehouse") return getComboMode("baiqi", "warehouse");
     if (value === "chase-hanxin-warehouse") return getComboMode("hanxin", "warehouse");
     if (value === "chase-shouyue-warehouse") return getComboMode("shouyue", "warehouse");
+    if (value === "chase-zhugeliang-street") return getComboMode("zhugeliang", "street");
+    if (value === "chase-zhugeliang-castle") return getComboMode("zhugeliang", "castle");
+    if (value === "chase-zhugeliang-warehouse") return getComboMode("zhugeliang", "warehouse");
     return null;
   }
 
@@ -2231,6 +2767,7 @@
     SCENES = next.scenes;
     STAGE_ACTIONS = next.stageActions;
     SCENE_WATCHES = next.watches;
+    if (window.__chaseAudio) window.__chaseAudio.setMode(next.heroKey, next.key);
     state.mode = next.id;
     state.heroKey = next.heroKey;
     state.sceneKey = next.key;
@@ -2239,7 +2776,7 @@
       ["street", "castle", "warehouse"].forEach(function (sceneKey) {
         game.classList.toggle("cm-mode-" + sceneKey, next.key === sceneKey);
       });
-      ["baiqi", "hanxin", "shouyue"].forEach(function (heroKey) {
+      ["baiqi", "hanxin", "shouyue", "zhugeliang"].forEach(function (heroKey) {
         game.classList.toggle("cm-mode-" + heroKey, next.heroKey === heroKey);
       });
     }
@@ -2274,7 +2811,8 @@
 
   function showSceneWatch(scene) {
     const watch = SCENE_WATCHES[scene.id];
-    if (!watch || !state.active || state.hidden || state.ended || state.executing || state.watchSeen[scene.id]) return;
+    if (!watch || !state.active || state.hidden || state.ended || state.executing ||
+      itemInputLocked() || state.watchSeen[scene.id]) return;
     clearSceneWatch();
     state.watchSeen[scene.id] = true;
     const frame = pick(watch.frames);
@@ -2299,7 +2837,9 @@
   }
 
   function branchDecks() {
-    return BRANCH_PACKS[CHASE_MODE.key] || [];
+    return HERO_ROUTE_PACKS[CHASE_MODE.key + ":" + CHASE_MODE.heroKey] ||
+      BRANCH_PACKS[CHASE_MODE.key] ||
+      [];
   }
 
   function actionsForScene(scene) {
@@ -2329,14 +2869,29 @@
 
   function renderActions(scene) {
     state.currentActions = actionsForScene(scene);
-    const available = Object.keys(state.currentActions);
-    const actionViewId = scene.id + ":" + state.branchDepth + ":" + state.branchWave;
+    let available = Object.keys(state.currentActions);
+    let sealed = false;
+    if (state.sealTurns > 0 && available.length > 1) {
+      const safeRoles = { steady: 4, quiet: 3, aisle: 2, flank: 1 };
+      const sealedKey = available.slice().sort(function (left, right) {
+        const leftRole = roleFor(scene.id, left, state.currentActions[left]);
+        const rightRole = roleFor(scene.id, right, state.currentActions[right]);
+        return (safeRoles[rightRole] || 0) - (safeRoles[leftRole] || 0);
+      })[0];
+      available = available.filter(function (key) { return key !== sealedKey; });
+      sealed = available.length > 0;
+    }
+    const actionViewId = scene.id + ":" + state.branchDepth + ":" + state.branchWave + ":" + state.sealTurns;
     const changed = state.renderedPhaseId !== actionViewId;
-    controls.innerHTML = available.map(function (key, index) {
+    controls.innerHTML = (sealed
+      ? '<div class="cm-controls-alert">封口铁楔：一条稳妥路线已被封死 · 还剩 ' +
+        state.sealTurns + ' 回合</div>'
+      : "") + available.map(function (key, index) {
       const action = state.currentActions[key];
       const role = roleFor(scene.id, key, action);
       const wide = available.length % 2 === 1 && index === available.length - 1;
-      const disabled = action.minStamina != null && state.stamina < action.minStamina;
+      const disabled = itemInputLocked() ||
+        (action.minStamina != null && state.stamina < action.minStamina);
       return '<button type="button" class="cm-action ' + (action.kind || "") + (wide ? " wide" : "") + '"' +
         ' data-cm-action="' + key + '"' + (disabled ? " disabled" : "") + '>' +
         '<span class="cm-action-role ' + role + '">' + ROLE_LABELS[role] + '</span>' +
@@ -2353,7 +2908,8 @@
   }
 
   function renderHotspot(scene) {
-    const visible = state.active && !state.hidden && !state.ended && !state.executing && !state.interactPhaseId;
+    const visible = state.active && !state.hidden && !state.ended && !state.executing &&
+      !state.interactPhaseId && !itemInputLocked();
     hotspot.hidden = !visible;
     if (!scene.hotspot) {
       hotspot.hidden = true;
@@ -2369,7 +2925,7 @@
   }
 
   function openInteraction() {
-    if (!state.active || state.ended || state.hidden || state.executing) return;
+    if (!state.active || state.ended || state.hidden || state.executing || itemInputLocked()) return;
     const scene = sceneForProgress(state.progress);
     if (!scene.hotspot || state.hotspotsUsed[scene.id]) return;
     state.interactPhaseId = scene.id;
@@ -2418,6 +2974,7 @@
     recordRoute(scene, "hotspot", scene.hotspot.title, role,
       actualMetrics(progress, distance, noise, stamina), scene.hotspot.note || scene.hotspot.hint);
     if (scene.hotspot.shake !== false) overlay.classList.add("cm-shake");
+    if (window.__chaseAudio) window.__chaseAudio.playStep("hotspot");
     finishTurn(scene.hotspot.success || scene.hotspot.title, scene.hotspot.hint);
   }
 
@@ -2437,6 +2994,10 @@
     const showShot = state.active && !state.hidden && !state.ended && state.distance <= 4.2;
     const tension = state.active && !state.hidden && !state.ended && (state.distance <= 4.2 || state.noise >= 58);
     const critical = state.active && !state.hidden && !state.ended && (state.distance <= 2.2 || state.noise >= 82);
+    if (window.__chaseAudio) {
+      if (showShot) window.__chaseAudio.playVoice("02-close");
+      if (critical) window.__chaseAudio.playVoice("03-hunted");
+    }
     if (!state.hidden && !state.ended) {
       if (state.distance <= 2.2) setVisual("look-close");
       else if (state.distance <= 4.2) setVisual("look-far");
@@ -2478,6 +3039,7 @@
     $("cmStory").classList.toggle("critical", critical);
     renderActions(scene);
     renderHotspot(scene);
+    renderItemHud();
     showSceneWatch(scene);
   }
 
@@ -2516,6 +3078,8 @@
 
   function finishTurn(message, hint) {
     state.turn += 1;
+    state.traceTurns = Math.max(0, state.traceTurns - 1);
+    state.sealTurns = Math.max(0, state.sealTurns - 1);
     heroMovesAfterNoise();
     updateRunMetrics();
     narrate(message, hint || "");
@@ -2529,6 +3093,7 @@
       return;
     }
     if (state.turn > MAX_TURNS) {
+      if (window.__chaseAudio) window.__chaseAudio.playVoice("04-last");
       tryFinalGambit();
       return;
     }
@@ -2540,7 +3105,7 @@
   }
 
   function runAction(action) {
-    if (!state.active || state.ended || state.hidden) return;
+    if (!state.active || state.ended || state.hidden || itemInputLocked()) return;
     const scene = sceneForProgress(state.progress);
     const actionMap = state.currentActions && state.currentActions[action]
       ? state.currentActions
@@ -2586,6 +3151,12 @@
       text = pick(choice.slipText || text);
       hint = choice.slipHint || hint;
     }
+    if (state.traceTurns > 0) {
+      gain *= .7;
+      distanceDelta -= .45;
+      noiseDelta += 6;
+      hint = "追息香把位置暴露给追兵，稳妥路线也被压短。" + (hint || "");
+    }
 
     gain *= ROUTE_GAIN_SCALE;
     state.progress = clamp(state.progress + gain, 0, 100);
@@ -2606,6 +3177,7 @@
           : (slipped ? "失足：推进减半，额外增加噪声。" : hint))
     );
     advanceBranch(choice, choiceRole);
+    if (window.__chaseAudio) window.__chaseAudio.playStep(action);
 
     if (choice.shake) {
       overlay.classList.add("cm-shake");
@@ -2620,10 +3192,12 @@
   }
 
   function enterHide(scene) {
+    if (itemInputLocked()) return;
     const spot = scene || sceneForProgress(state.progress);
     state.hidden = true;
     state.holdCompleted = false;
     state.hiddenSceneId = spot.id;
+    if (window.__chaseAudio) window.__chaseAudio.playStep("hide");
     controls.style.display = "none";
     hidePanel.classList.add("show");
     setVisual("hide-mode");
@@ -2638,7 +3212,7 @@
   }
 
   function beginHold(event) {
-    if (!state.hidden || state.holdCompleted || state.ended || state.holdFrame) return;
+    if (!state.hidden || state.holdCompleted || state.ended || state.holdFrame || itemInputLocked()) return;
     if (event && event.cancelable) event.preventDefault();
     let breath = parseFloat($("cmBreathFill").style.width) || 0;
     state.holdLast = performance.now();
@@ -2650,7 +3224,7 @@
       const dt = Math.min(80, now - state.holdLast);
       state.holdLast = now;
       breath = clamp(breath + dt * .034, 0, 100);
-      state.noise = clamp(state.noise + dt * .0058, 0, 100);
+      state.noise = clamp(state.noise + dt * .0058 * (state.traceTurns > 0 ? 3.2 : 1), 0, 100);
       $("cmBreathFill").style.width = breath + "%";
       $("cmBreathRead").textContent = Math.round(breath) + "%";
       render();
@@ -2692,14 +3266,18 @@
 
   function completeHide() {
     const scene = SCENES.filter(function (item) { return item.id === state.hiddenSceneId; })[0] || sceneForProgress(state.progress);
+    const tracedHide = state.traceTurns > 0;
+    const hideDistance = tracedHide ? 1.2 : 3.8;
+    const hideNoiseCut = tracedHide ? 18 : 38;
     cancelAnimationFrame(state.holdFrame);
     state.holdFrame = 0;
     state.holdCompleted = true;
+    if (window.__chaseAudio) window.__chaseAudio.playStep("hide-complete");
     holdButton.classList.remove("holding");
     holdButton.textContent = CHASE_MODE.hideButtonDone;
     state.progress = clamp(state.progress + 4, 0, 100);
-    state.distance = clamp(state.distance + 3.8, 0, 9);
-    state.noise = clamp(state.noise - 38, 0, 100);
+    state.distance = clamp(state.distance + hideDistance, 0, 9);
+    state.noise = clamp(state.noise - hideNoiseCut, 0, 100);
     state.stamina = clamp(state.stamina + 7, 0, 100);
     const hideKey = Object.keys(scene.actions).filter(function (key) {
       return scene.actions[key].hide;
@@ -2708,11 +3286,18 @@
     recordRoute(scene, hideKey, hideAction.label, "hide",
       actualMetrics(4, 3.8, -38, 7), "屏息成功，" + CHASE_MODE.heroName + "从藏身处旁走过。");
     buzz(35);
-    finishTurn(CHASE_MODE.hideDefaultSuccess(scene), CHASE_MODE.hideNextHint(scene));
+    if (state.routeLog.length) {
+      state.routeLog[state.routeLog.length - 1].metrics = actualMetrics(4, hideDistance, -hideNoiseCut, 7);
+      if (tracedHide) state.routeLog[state.routeLog.length - 1].note = "追息香持续暴露位置，屏息只换来很短的安全距离。";
+    }
+    finishTurn(
+      CHASE_MODE.hideDefaultSuccess(scene),
+      (tracedHide ? "追息香还在烧，藏身位置已经暴露。" : "") + CHASE_MODE.hideNextHint(scene)
+    );
   }
 
   function leaveHide() {
-    if (!state.hidden || state.ended) return;
+    if (!state.hidden || state.ended || itemInputLocked()) return;
     if (state.holdFrame) {
       cancelAnimationFrame(state.holdFrame);
       state.holdFrame = 0;
@@ -2724,6 +3309,7 @@
     overlay.classList.add("cm-shake");
     pulse();
     buzz([25, 40, 70]);
+    if (window.__chaseAudio) window.__chaseAudio.playStep("sprint");
     const hidingScene = SCENES.filter(function (item) { return item.id === state.hiddenSceneId; })[0] ||
       sceneForProgress(state.progress);
     recordRoute(hidingScene, "hide-abort", "提前冲出藏身处", "hide",
@@ -2764,7 +3350,8 @@
       const scene = document.createElement("span");
       const metrics = document.createElement("small");
       title.textContent = entry.label;
-      scene.textContent = " · " + entry.scene + " · " + ROLE_LABELS[entry.role];
+      scene.textContent = " · " + entry.scene + " · " +
+        (ROLE_LABELS[entry.role] || (entry.role === "item" ? "契约道具" : "未知路线"));
       metrics.textContent = entry.metrics + (entry.note ? " · " + entry.note : "");
       item.appendChild(title);
       item.appendChild(scene);
@@ -2811,6 +3398,10 @@
     if (state.executing) return;
     state.executing = true;
     state.distance = 0;
+    if (window.__chaseAudio) {
+      window.__chaseAudio.stopVoice();
+      window.__chaseAudio.playVoice("05-execution");
+    }
     setVisual("look-close");
     $("cmDangerState").textContent = CHASE_MODE.dangerCopies[3];
     narrate(pick(CHASE_MODE.captureLines), "追逃结束。正在接入处刑。");
@@ -2838,6 +3429,13 @@
     if (state.ended) return;
     state.ended = true;
     state.active = false;
+    state.itemEventOpen = false;
+    state.itemAutoQueue = [];
+    if (state.itemAutoTimer) window.clearTimeout(state.itemAutoTimer);
+    state.itemAutoTimer = 0;
+    pendingItemEvent = null;
+    if (itemEvent) itemEvent.hidden = true;
+    if (itemHud) itemHud.hidden = true;
     clearSceneWatch();
     if (state.holdFrame) cancelAnimationFrame(state.holdFrame);
     state.holdFrame = 0;
@@ -2860,6 +3458,9 @@
 
   function resetGame() {
     clearSceneWatch();
+    if (state.itemAutoTimer) window.clearTimeout(state.itemAutoTimer);
+    state.itemAutoTimer = 0;
+    if (window.__chaseAudio) window.__chaseAudio.beginRun(CHASE_MODE.heroKey, CHASE_MODE.key);
     Object.assign(state, {
       turn: 1,
       distance: 9,
@@ -2893,8 +3494,18 @@
       slipCount: 0,
       finalGambit: false,
       outcome: "",
-      recordSaved: false
+      recordSaved: false,
+      itemLoadout: activeLoadout.map(function (entry) {
+        return { id: entry.id, mode: entry.mode, used: false };
+      }),
+      itemUsed: {},
+      itemEventOpen: false,
+      itemAutoQueue: [],
+      itemAutoTimer: 0,
+      traceTurns: 0,
+      sealTurns: 0
     });
+    pendingItemEvent = null;
     setVisual("");
     controls.style.display = "grid";
     hidePanel.classList.remove("show");
@@ -2902,11 +3513,14 @@
     hotspot.hidden = true;
     $("cmEndModal").hidden = true;
     $("cmStartModal").hidden = true;
+    if (itemEvent) itemEvent.hidden = true;
     $("cmBreathFill").style.width = "0%";
     $("cmBreathRead").textContent = "0%";
     $("cmStartRecord").textContent = formatChaseRecord();
     narrate(CHASE_MODE.startNarration, CHASE_MODE.startHint);
     render();
+    if (window.__chaseAudio) window.__chaseAudio.playVoice("01-entry");
+    queueAutomaticItems();
   }
 
   function formatComboRecord(mode) {
@@ -2936,7 +3550,7 @@
       mode.pickerRule || (hero.rule + " " + scene.rule);
     if (comboRecord) comboRecord.textContent = formatComboRecord(mode);
     if (comboArt) comboArt.style.backgroundImage = "url(\"" + mode.shotByScene.entry + "\")";
-    if (pickerStart) pickerStart.textContent = "进入 " + hero.name + " × " + scene.name;
+    if (pickerStart) pickerStart.textContent = "下一步：选择道具 · " + hero.name + " × " + scene.name;
   }
 
   function selectCombo(heroKey, sceneKey) {
@@ -2946,6 +3560,7 @@
   }
 
   function openPicker() {
+    if (window.__chaseAudio) window.__chaseAudio.stopAll();
     document.querySelectorAll("#app .overlay.show").forEach(function (node) {
       if (node !== overlay) node.classList.remove("show");
     });
@@ -2957,6 +3572,14 @@
     state.executing = false;
     state.hidden = false;
     state.interactPhaseId = "";
+    state.itemEventOpen = false;
+    state.itemAutoQueue = [];
+    if (state.itemAutoTimer) window.clearTimeout(state.itemAutoTimer);
+    state.itemAutoTimer = 0;
+    if (picker) picker.classList.remove("loadout-open");
+    if (loadout) loadout.hidden = true;
+    if (itemEvent) itemEvent.hidden = true;
+    if (itemHud) itemHud.hidden = true;
     overlay.classList.add("show", "cm-picking");
     overlay.setAttribute("aria-hidden", "false");
     if (picker) picker.hidden = false;
@@ -2987,6 +3610,10 @@
     overlay.classList.remove("cm-picking");
     overlay.setAttribute("aria-hidden", "false");
     if (picker) picker.hidden = true;
+    if (loadout) loadout.hidden = true;
+    if (picker) picker.classList.remove("loadout-open");
+    if (itemEvent) itemEvent.hidden = true;
+    if (itemHud) itemHud.hidden = true;
     $("cmGame").setAttribute("aria-hidden", "false");
     $("cmEndModal").hidden = true;
     $("cmStartModal").hidden = false;
@@ -3008,6 +3635,7 @@
   }
 
   function returnToPicker() {
+    if (window.__chaseAudio) window.__chaseAudio.stopAll();
     clearSceneWatch();
     if (state.holdFrame) cancelAnimationFrame(state.holdFrame);
     state.holdFrame = 0;
@@ -3016,6 +3644,14 @@
     state.executing = false;
     state.hidden = false;
     state.interactPhaseId = "";
+    state.itemEventOpen = false;
+    state.itemAutoQueue = [];
+    if (state.itemAutoTimer) window.clearTimeout(state.itemAutoTimer);
+    state.itemAutoTimer = 0;
+    if (loadout) loadout.hidden = true;
+    if (picker) picker.classList.remove("loadout-open");
+    if (itemEvent) itemEvent.hidden = true;
+    if (itemHud) itemHud.hidden = true;
     if (typeof closeInteraction === "function") {
       interact.hidden = true;
       state.interactPhaseId = "";
@@ -3033,6 +3669,11 @@
   }
 
   function chaseBack() {
+    if (state.itemEventOpen) return;
+    if (picker && picker.classList.contains("loadout-open")) {
+      closeLoadout();
+      return;
+    }
     if (overlay.classList.contains("show") && !overlay.classList.contains("cm-picking")) {
       returnToPicker();
       return;
@@ -3041,7 +3682,17 @@
   }
 
   function closeChase() {
+    if (window.__chaseAudio) window.__chaseAudio.stopAll();
     clearSceneWatch();
+    state.itemEventOpen = false;
+    state.itemAutoQueue = [];
+    if (state.itemAutoTimer) window.clearTimeout(state.itemAutoTimer);
+    state.itemAutoTimer = 0;
+    pendingItemEvent = null;
+    if (itemEvent) itemEvent.hidden = true;
+    if (itemHud) itemHud.hidden = true;
+    if (loadout) loadout.hidden = true;
+    if (picker) picker.classList.remove("loadout-open");
     if (state.holdFrame) cancelAnimationFrame(state.holdFrame);
     state.holdFrame = 0;
     state.active = false;
@@ -3065,9 +3716,24 @@
 
   if (entryButton) entryButton.addEventListener("click", openPicker);
   if (pickerClose) pickerClose.addEventListener("click", closeChase);
-  if (pickerStart) pickerStart.addEventListener("click", function () {
-    enterCombo(getComboMode(selection.hero, selection.scene));
-  });
+  if (pickerStart) pickerStart.addEventListener("click", openLoadout);
+  if (loadoutBack) loadoutBack.addEventListener("click", closeLoadout);
+  if (loadoutStart) loadoutStart.addEventListener("click", beginLoadedRun);
+  if (loadoutGrid) {
+    loadoutGrid.addEventListener("click", function (event) {
+      const modeButton = event.target && event.target.closest
+        ? event.target.closest("[data-item-mode]")
+        : null;
+      const removeButton = event.target && event.target.closest
+        ? event.target.closest("[data-item-remove]")
+        : null;
+      if (modeButton && !modeButton.disabled) {
+        chooseLoadoutItem(modeButton.getAttribute("data-item-id"), modeButton.getAttribute("data-item-mode"));
+      } else if (removeButton) {
+        removeLoadoutItem(removeButton.getAttribute("data-item-remove"));
+      }
+    });
+  }
   if (picker) {
     picker.addEventListener("click", function (event) {
       const heroButton = event.target && event.target.closest ? event.target.closest("[data-cm-hero]") : null;
@@ -3076,6 +3742,15 @@
       if (sceneButton) selectCombo(selection.hero, sceneButton.getAttribute("data-cm-scene"));
     });
   }
+  if (itemHudList) {
+    itemHudList.addEventListener("click", function (event) {
+      const button = event.target && event.target.closest
+        ? event.target.closest("[data-item-use]")
+        : null;
+      if (button && !button.disabled) triggerItem(button.getAttribute("data-item-use"));
+    });
+  }
+  if (itemEventContinue) itemEventContinue.addEventListener("click", finishItemEvent);
   startButton.addEventListener("click", resetGame);
   againButton.addEventListener("click", resetGame);
   exitButton.addEventListener("click", chaseBack);
@@ -3153,7 +3828,38 @@
 
   window.__chaseMode = {
     open: openPicker,
-    openCombo: function (heroKey, sceneKey) { enterCombo(heroKey, sceneKey); },
+    openCombo: function (heroKey, sceneKey) {
+      activeLoadout = [];
+      loadoutSelection.length = 0;
+      renderLoadout();
+      enterCombo(heroKey, sceneKey);
+    },
+    openLoadout: openLoadout,
+    closeLoadout: closeLoadout,
+    setLoadout: function (entries) {
+      activeLoadout = [];
+      loadoutSelection.length = 0;
+      (Array.isArray(entries) ? entries : []).slice(0, 2).forEach(function (entry) {
+        if (!entry || !itemDefinition(entry.id) || selectedLoadoutEntry(entry.id)) return;
+        loadoutSelection.push({
+          id: entry.id,
+          mode: entry.mode === "auto" ? "auto" : "assist"
+        });
+      });
+      renderLoadout();
+      return loadoutSelection.map(function (entry) { return Object.assign({}, entry); });
+    },
+    startLoadout: beginLoadedRun,
+    chooseItem: chooseLoadoutItem,
+    removeItem: removeLoadoutItem,
+    useItem: triggerItem,
+    finishItem: finishItemEvent,
+    loadout: function () {
+      return loadoutSelection.map(function (entry) { return Object.assign({}, entry); });
+    },
+    items: function () {
+      return (window.CHASE_ITEMS || []).map(function (item) { return Object.assign({}, item); });
+    },
     back: chaseBack,
     picker: updatePicker,
     close: closeChase,
@@ -3170,7 +3876,15 @@
     }, {}); },
     mode: function () { return CHASE_MODE.id; },
     hero: function () { return CHASE_MODE.heroKey; },
-    scene: function () { return CHASE_MODE.sceneKey || CHASE_MODE.key; }
+    scene: function () { return CHASE_MODE.sceneKey || CHASE_MODE.key; },
+    routes: function (heroKey, sceneKey) {
+      const decks = HERO_ROUTE_PACKS[sceneKey + ":" + heroKey] || BRANCH_PACKS[sceneKey] || [];
+      return decks.map(function (deck) {
+        return deck.map(function (action) {
+          return { role: action.role, label: action.label, hint: action.hint };
+        });
+      });
+    }
   };
 
   const params = new URLSearchParams(window.location.search);

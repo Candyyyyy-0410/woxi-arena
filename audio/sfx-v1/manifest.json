@@ -1,0 +1,114 @@
+{
+  "generatedAt": "2026-10-24T14:09:27.864Z",
+  "note": "Freesound CC0 preview files for local prototype use. No ambience, drone, or audio longer than 3 seconds.",
+  "items": [
+    {
+      "file": "shoe-leather-step-a.mp3",
+      "title": "foot 3.aif",
+      "duration": 0.32,
+      "source": "https://freesound.org/people/zinzan_101/sounds/91043/",
+      "download": "https://cdn.freesound.org/previews/91/91043_1491361-lq.mp3",
+      "license": "CC0",
+      "bytes": 3466
+    },
+    {
+      "file": "shoe-leather-step-b.mp3",
+      "title": "foot 2.aif",
+      "duration": 0.47,
+      "source": "https://freesound.org/people/zinzan_101/sounds/91042/",
+      "download": "https://cdn.freesound.org/previews/91/91042_1491361-lq.mp3",
+      "license": "CC0",
+      "bytes": 4531
+    },
+    {
+      "file": "shoe-leather-wood.mp3",
+      "title": "Footsteps_Leather_Wood_Walk04.wav",
+      "duration": 1.25,
+      "source": "https://freesound.org/people/marb7e/sounds/620334/",
+      "download": "https://cdn.freesound.org/previews/620/620334_13732472-lq.mp3",
+      "license": "CC0",
+      "bytes": 6768
+    },
+    {
+      "file": "boot-run-pavement.mp3",
+      "title": "Running_Boots_on_Pavement.wav",
+      "duration": 1.04,
+      "source": "https://freesound.org/people/Tdude9000/sounds/138337/",
+      "download": "https://cdn.freesound.org/previews/138/138337_2531092-lq.mp3",
+      "license": "CC0",
+      "bytes": 9456
+    },
+    {
+      "file": "boot-step-puddle.mp3",
+      "title": "Step into water puddle / wade",
+      "duration": 0.15,
+      "source": "https://freesound.org/people/Breviceps/sounds/450621/",
+      "download": "https://cdn.freesound.org/previews/450/450621_9159316-lq.mp3",
+      "license": "CC0",
+      "bytes": 2064
+    },
+    {
+      "file": "boot-step-mud.mp3",
+      "title": "Muddy Boots",
+      "duration": 0.69,
+      "source": "https://freesound.org/people/Breviceps/sounds/447928/",
+      "download": "https://cdn.freesound.org/previews/447/447928_9159316-lq.mp3",
+      "license": "CC0",
+      "bytes": 6120
+    },
+    {
+      "file": "boot-step-hobnail.mp3",
+      "title": "hobnails_1step_00.wav",
+      "duration": 1.44,
+      "source": "https://freesound.org/people/Buck_Rogers/sounds/117956/",
+      "download": "https://cdn.freesound.org/previews/117/117956_680169-lq.mp3",
+      "license": "CC0",
+      "bytes": 4704
+    },
+    {
+      "file": "boot-step-hollow-metal.mp3",
+      "title": "Boots_On_Hollow_Metal_Light_03",
+      "duration": 0.69,
+      "source": "https://freesound.org/people/BlondPanda/sounds/778437/",
+      "download": "https://cdn.freesound.org/previews/778/778437_8927049-lq.mp3",
+      "license": "CC0",
+      "bytes": 6288
+    },
+    {
+      "file": "footstep-metal.mp3",
+      "title": "metal footstep",
+      "duration": 0.31,
+      "source": "https://freesound.org/people/atleastrelatively/sounds/816413/",
+      "download": "https://cdn.freesound.org/previews/816/816413_17614127-lq.mp3",
+      "license": "CC0",
+      "bytes": 3432
+    },
+    {
+      "file": "boot-gravel-slide.mp3",
+      "title": "Boots Gravel Feet Slide 1_5",
+      "duration": 1.23,
+      "source": "https://freesound.org/people/Joao_Janz/sounds/504383/",
+      "download": "https://cdn.freesound.org/previews/504/504383_9961300-lq.mp3",
+      "license": "CC0",
+      "bytes": 15264
+    },
+    {
+      "file": "boot-kick-log.mp3",
+      "title": "Boots Kicking Tree Log 1_7",
+      "duration": 0.57,
+      "source": "https://freesound.org/people/Joao_Janz/sounds/504447/",
+      "download": "https://cdn.freesound.org/previews/504/504447_9961300-lq.mp3",
+      "license": "CC0",
+      "bytes": 4800
+    },
+    {
+      "file": "boot-step-spur.mp3",
+      "title": "Single Spur Step",
+      "duration": 1.45,
+      "source": "https://freesound.org/people/wjb_88/sounds/828863/",
+      "download": "https://cdn.freesound.org/previews/828/828863_16550613-lq.mp3",
+      "license": "CC0",
+      "bytes": 14189
+    }
+  ]
+}
