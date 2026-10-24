@@ -1,0 +1,1065 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#071014">
+  <script>location.replace("king-text-1v1.html?mode=chase-baiqi");</script>
+  <title>积水街追逃 · 独立场景</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #eefbf8;
+      --muted: #a3b9b8;
+      --cyan: #55f5dd;
+      --cyan-deep: #0d8f86;
+      --amber: #ffc46b;
+      --red: #ff6673;
+      --panel: rgba(5, 14, 18, .86);
+      --line: rgba(191, 255, 245, .16);
+      --safe-bottom: max(14px, env(safe-area-inset-bottom));
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: #030708; }
+    body {
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+      font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      overflow: hidden;
+    }
+
+    button { font: inherit; }
+
+    .game {
+      position: relative;
+      isolation: isolate;
+      width: min(100%, 510px);
+      height: min(100dvh, 920px);
+      min-height: 620px;
+      overflow: hidden;
+      background: #071014;
+      border: 1px solid rgba(190, 255, 245, .12);
+      box-shadow: 0 30px 100px rgba(0, 0, 0, .7);
+    }
+
+    .visual,
+    .layer,
+    .shade,
+    .rain,
+    .flash {
+      position: absolute;
+      inset: 0;
+    }
+
+    .visual { z-index: 0; overflow: hidden; background: #071014; }
+    .layer {
+      background-position: center;
+      background-size: cover;
+      transition: opacity .55s ease, transform 1.2s ease, filter .35s ease;
+      will-change: opacity, transform;
+    }
+    #streetLayer {
+      background-image: url("generated/chase-street-night-bg-mobile.webp");
+      filter: brightness(1.08) saturate(1.08);
+      transform: scale(1.025);
+    }
+    #heroLayer {
+      background-image: url("generated/chase-baiqi-street-face-mobile.webp");
+      filter: brightness(1.1) saturate(1.07);
+      opacity: .22;
+      transform: scale(1.03);
+    }
+    #closeLayer {
+      background-image: url("generated/chase-baiqi-street-close-mobile.webp");
+      filter: brightness(1.14) saturate(1.08);
+      opacity: 0;
+      transform: scale(1.08);
+    }
+    .visual.look-far #heroLayer { opacity: .9; transform: scale(1.015); }
+    .visual.look-close #closeLayer { opacity: 1; transform: scale(1.02); }
+    .visual.look-close #streetLayer { filter: brightness(.55) blur(2px); transform: scale(1.08); }
+    .visual.hide-mode #streetLayer { transform: scale(1.11); filter: brightness(.45) saturate(.75); }
+    .visual.hide-mode #heroLayer { opacity: .12; }
+    .visual.ending-caught #heroLayer { opacity: 0; }
+    .visual.ending-caught #streetLayer {
+      background-image: url("generated/exec4-baiqi.jpg");
+      filter: brightness(1.35) contrast(1.09) saturate(1.06);
+      transform: scale(1.045);
+    }
+    .visual.ending-caught #closeLayer { opacity: 0; }
+
+    .shade {
+      background:
+        linear-gradient(180deg, rgba(2, 8, 12, .62) 0%, transparent 24%, transparent 49%, rgba(2, 7, 10, .88) 74%, #030809 100%),
+        linear-gradient(90deg, rgba(0, 0, 0, .36), transparent 28%, transparent 74%, rgba(0, 0, 0, .3));
+      pointer-events: none;
+    }
+    .vignette {
+      box-shadow: inset 0 0 120px 36px rgba(0, 0, 0, .56);
+      pointer-events: none;
+    }
+    .rain {
+      z-index: 2;
+      opacity: .36;
+      pointer-events: none;
+      background-image:
+        repeating-linear-gradient(104deg, transparent 0 19px, rgba(175, 252, 242, .24) 20px 21px, transparent 22px 45px);
+      background-size: 240px 310px;
+      animation: rain .5s linear infinite;
+      mix-blend-mode: screen;
+    }
+    @keyframes rain {
+      from { background-position: 0 -310px; }
+      to { background-position: -40px 310px; }
+    }
+    .flash {
+      z-index: 4;
+      opacity: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 35%, rgba(131, 255, 235, .9), transparent 64%);
+    }
+    .flash.pulse { animation: flash .48s ease-out; }
+    @keyframes flash {
+      0% { opacity: 0; }
+      18% { opacity: .48; }
+      100% { opacity: 0; }
+    }
+
+    .shell {
+      position: relative;
+      z-index: 5;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: max(16px, env(safe-area-inset-top)) 16px var(--safe-bottom);
+      pointer-events: none;
+    }
+    .shell button { pointer-events: auto; }
+
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .brand { text-shadow: 0 2px 18px rgba(0, 0, 0, .9); }
+    .eyebrow {
+      display: block;
+      margin-bottom: 2px;
+      color: var(--cyan);
+      font: 700 10px/1.2 ui-monospace, "Cascadia Mono", monospace;
+      letter-spacing: .19em;
+      text-transform: uppercase;
+    }
+    .brand strong {
+      display: block;
+      font-family: "STKaiti", "KaiTi", serif;
+      font-size: clamp(24px, 8vw, 34px);
+      font-weight: 700;
+      letter-spacing: .08em;
+    }
+    .sound {
+      min-width: 70px;
+      padding: 8px 11px;
+      color: var(--muted);
+      background: rgba(3, 12, 15, .64);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 12px;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+    }
+    .sound[aria-pressed="true"] { color: var(--cyan); border-color: rgba(85, 245, 221, .38); }
+
+    .status {
+      margin-top: 12px;
+      padding: 12px 13px 11px;
+      background: linear-gradient(180deg, rgba(4, 17, 21, .84), rgba(4, 12, 15, .65));
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 10px 32px rgba(0, 0, 0, .24);
+      backdrop-filter: blur(14px);
+    }
+    .status-head,
+    .micro-row,
+    .chapter {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .status-label,
+    .micro-label {
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: .08em;
+    }
+    #distanceRead {
+      color: var(--ink);
+      font: 700 13px/1 ui-monospace, "Cascadia Mono", monospace;
+    }
+    .track {
+      position: relative;
+      height: 7px;
+      margin: 9px 0 11px;
+      overflow: hidden;
+      background: rgba(157, 194, 191, .12);
+      border-radius: 99px;
+    }
+    .track span {
+      display: block;
+      width: 90%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #20a99c, var(--cyan));
+      box-shadow: 0 0 16px rgba(85, 245, 221, .38);
+      transition: width .45s ease, background .35s ease;
+    }
+    .micro-row { align-items: flex-end; }
+    .micro {
+      flex: 1;
+      min-width: 0;
+    }
+    .micro-value {
+      display: block;
+      margin-top: 3px;
+      color: var(--ink);
+      font: 700 12px/1.1 ui-monospace, "Cascadia Mono", monospace;
+    }
+    .micro-track {
+      height: 3px;
+      margin-top: 6px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, .1);
+      border-radius: 99px;
+    }
+    .micro-track i {
+      display: block;
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      transition: width .3s ease;
+    }
+    #noiseFill { background: var(--amber); }
+    #staminaFill { background: var(--cyan); }
+    #escapeFill { background: #e9fdf9; }
+
+    .story {
+      margin-top: auto;
+      padding: 0 3px 13px;
+      text-shadow: 0 2px 16px rgba(0, 0, 0, .94);
+    }
+    .chapter {
+      margin-bottom: 7px;
+      color: var(--muted);
+      font: 700 10px/1.2 ui-monospace, "Cascadia Mono", monospace;
+      letter-spacing: .13em;
+    }
+    #dangerState {
+      color: var(--cyan);
+      text-align: right;
+    }
+    .danger-high #dangerState { color: var(--amber); }
+    .danger-critical #dangerState { color: var(--red); }
+    .narration {
+      min-height: 75px;
+      margin: 0;
+      font-family: "STKaiti", "KaiTi", serif;
+      font-size: clamp(18px, 5vw, 22px);
+      line-height: 1.5;
+      letter-spacing: .025em;
+    }
+    .whisper {
+      margin-top: 7px;
+      padding-left: 9px;
+      color: #d9ebe8;
+      border-left: 2px solid rgba(85, 245, 221, .7);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .whisper:empty { display: none; }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      pointer-events: auto;
+    }
+    .action {
+      position: relative;
+      min-height: 58px;
+      padding: 9px 10px 8px 13px;
+      overflow: hidden;
+      text-align: left;
+      color: var(--ink);
+      background: rgba(5, 20, 23, .84);
+      border: 1px solid rgba(196, 255, 247, .18);
+      border-radius: 12px;
+      cursor: pointer;
+      backdrop-filter: blur(15px);
+      transition: transform .14s ease, border-color .2s ease, background .2s ease;
+    }
+    .action::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 2px;
+      background: var(--cyan);
+      opacity: .45;
+    }
+    .action:active { transform: scale(.975); background: rgba(11, 38, 40, .92); }
+    .action:disabled { opacity: .38; cursor: default; }
+    .action strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .03em;
+    }
+    .action small {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.35;
+    }
+    .action.risk { border-color: rgba(255, 196, 107, .22); }
+    .action.risk::before { background: var(--amber); }
+    .action.quiet::before { background: #a9c4c1; }
+    .action.wide { grid-column: 1 / -1; min-height: 46px; }
+    .action.wide strong { display: inline; margin-right: 8px; }
+    .action.wide small { display: inline; }
+
+    .hide-panel {
+      display: none;
+      padding: 12px;
+      background: rgba(2, 9, 11, .9);
+      border: 1px solid rgba(255, 196, 107, .24);
+      border-radius: 14px;
+      backdrop-filter: blur(18px);
+      pointer-events: auto;
+    }
+    .hide-panel.active { display: block; }
+    .hide-copy {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 9px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .hide-copy b { color: var(--amber); }
+    .breath-track {
+      height: 11px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, .09);
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: 99px;
+    }
+    .breath-track span {
+      display: block;
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, #e88a61, var(--amber), #fff2b5);
+      border-radius: inherit;
+      box-shadow: 0 0 20px rgba(255, 196, 107, .46);
+    }
+    .hold-button {
+      width: 100%;
+      min-height: 51px;
+      margin-top: 9px;
+      color: #16100a;
+      background: linear-gradient(135deg, #ffe2a4, var(--amber));
+      border: 0;
+      border-radius: 10px;
+      font-weight: 800;
+      letter-spacing: .05em;
+      touch-action: none;
+      user-select: none;
+      cursor: pointer;
+    }
+    .hold-button.holding { filter: brightness(1.18); transform: scale(.985); }
+    .leave-hide {
+      width: 100%;
+      margin-top: 7px;
+      padding: 8px;
+      color: var(--muted);
+      background: transparent;
+      border: 0;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .modal {
+      position: absolute;
+      z-index: 20;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at 50% 22%, rgba(24, 95, 91, .25), transparent 48%),
+        linear-gradient(180deg, rgba(2, 7, 10, .68), rgba(2, 7, 10, .96));
+      backdrop-filter: blur(5px);
+      transition: opacity .35s ease, visibility .35s ease;
+    }
+    .modal.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .modal-card {
+      width: min(100%, 390px);
+      text-align: center;
+    }
+    .seal {
+      display: grid;
+      place-items: center;
+      width: 54px;
+      height: 54px;
+      margin: 0 auto 18px;
+      color: var(--cyan);
+      border: 1px solid rgba(85, 245, 221, .55);
+      border-radius: 50%;
+      font: 700 13px/1 ui-monospace, monospace;
+      box-shadow: inset 0 0 20px rgba(85, 245, 221, .12), 0 0 28px rgba(85, 245, 221, .12);
+    }
+    .modal h1,
+    .modal h2 {
+      margin: 0;
+      font-family: "STKaiti", "KaiTi", serif;
+      font-weight: 700;
+      letter-spacing: .08em;
+    }
+    .modal h1 { font-size: clamp(34px, 11vw, 50px); }
+    .modal h2 { font-size: clamp(30px, 9vw, 42px); }
+    .modal-kicker {
+      margin: 0 0 8px;
+      color: var(--cyan);
+      font: 700 10px/1.4 ui-monospace, monospace;
+      letter-spacing: .18em;
+    }
+    .modal p {
+      margin: 13px auto 0;
+      max-width: 330px;
+      color: #c3d4d2;
+      font-size: 13px;
+      line-height: 1.75;
+    }
+    .modal .content-note {
+      color: #8ca19f;
+      font-size: 10px;
+    }
+    .primary {
+      width: min(100%, 300px);
+      min-height: 54px;
+      margin-top: 25px;
+      color: #041312;
+      background: linear-gradient(135deg, #8ffbef, var(--cyan));
+      border: 0;
+      border-radius: 11px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      cursor: pointer;
+      box-shadow: 0 12px 34px rgba(85, 245, 221, .17);
+    }
+    .secondary {
+      display: block;
+      width: min(100%, 300px);
+      min-height: 43px;
+      margin: 8px auto 0;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    #endModal.caught .modal-kicker { color: var(--red); }
+    #endModal.caught .seal { color: var(--red); border-color: rgba(255, 102, 115, .55); }
+    #endModal.caught {
+      align-items: end;
+      background:
+        linear-gradient(180deg, rgba(2, 7, 10, .02) 0%, rgba(2, 7, 10, .06) 31%, rgba(2, 7, 10, .86) 69%, #030809 100%);
+      backdrop-filter: none;
+    }
+    #endModal.caught .modal-card {
+      padding: 18px 16px 13px;
+      background: linear-gradient(180deg, rgba(4, 9, 12, .16), rgba(3, 8, 11, .86));
+      border: 1px solid rgba(255, 102, 115, .2);
+      border-radius: 16px;
+      box-shadow: 0 22px 60px rgba(0, 0, 0, .52);
+    }
+    #endModal.caught .primary { margin-top: 17px; }
+
+    .shake { animation: shake .38s cubic-bezier(.36, .07, .19, .97); }
+    @keyframes shake {
+      10%, 90% { transform: translateX(-2px); }
+      20%, 80% { transform: translateX(4px); }
+      30%, 50%, 70% { transform: translateX(-6px); }
+      40%, 60% { transform: translateX(6px); }
+    }
+
+    @media (max-height: 720px) {
+      .game { min-height: 100dvh; border: 0; }
+      .status { margin-top: 8px; padding: 9px 11px; }
+      .story { padding-bottom: 9px; }
+      .narration { min-height: 61px; font-size: 17px; }
+      .action { min-height: 52px; }
+      .action.wide { min-height: 41px; }
+    }
+
+    @media (min-width: 700px) {
+      .game { border-radius: 22px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="game" id="game">
+    <div class="visual" id="visual" aria-hidden="true">
+      <div class="layer" id="streetLayer"></div>
+      <div class="layer" id="heroLayer"></div>
+      <div class="layer" id="closeLayer"></div>
+      <div class="shade"></div>
+      <div class="rain"></div>
+      <div class="flash" id="flash"></div>
+      <div class="shade vignette"></div>
+    </div>
+
+    <div class="shell">
+      <header class="topbar">
+        <div class="brand">
+          <span class="eyebrow">CHASE / 本人模式</span>
+          <strong>雨夜追逃</strong>
+        </div>
+        <button class="sound" id="soundButton" type="button" aria-pressed="false">声音：关</button>
+      </header>
+
+      <section class="status" aria-label="追逃状态">
+        <div class="status-head">
+          <span class="status-label">白起距离</span>
+          <span id="distanceRead">9.0 m</span>
+        </div>
+        <div class="track" aria-hidden="true"><span id="distanceFill"></span></div>
+        <div class="micro-row">
+          <div class="micro">
+            <span class="micro-label">噪声</span>
+            <span class="micro-value" id="noiseRead">20</span>
+            <div class="micro-track"><i id="noiseFill"></i></div>
+          </div>
+          <div class="micro">
+            <span class="micro-label">体力</span>
+            <span class="micro-value" id="staminaRead">100</span>
+            <div class="micro-track"><i id="staminaFill"></i></div>
+          </div>
+          <div class="micro">
+            <span class="micro-label">出口</span>
+            <span class="micro-value" id="exitRead">100 m</span>
+            <div class="micro-track"><i id="escapeFill"></i></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="story" id="story">
+        <div class="chapter">
+          <span id="turnRead">回合 1 / 6</span>
+          <span id="dangerState">他还没有看见你</span>
+        </div>
+        <p class="narration" id="narration">雨把旧街切成一段一段。白起的靴声停在街角，他仍没有叫出你的名字。</p>
+        <div class="whisper" id="whisper">先看距离和噪声，再决定下一步。回头不推进，但能确认他到底离你多近。</div>
+      </section>
+
+      <section class="controls" id="controls" aria-label="行动选择">
+        <button class="action quiet" data-action="advance" type="button">
+          <strong>贴墙前进</strong>
+          <small>稳定推进 · 声音很小</small>
+        </button>
+        <button class="action risk" data-action="sprint" id="sprintButton" type="button">
+          <strong>冲刺</strong>
+          <small>跑得更远 · 消耗体力与安静</small>
+        </button>
+        <button class="action" data-action="hide" type="button">
+          <strong>躲进垃圾桶</strong>
+          <small>拉开距离 · 要承受臭味</small>
+        </button>
+        <button class="action" data-action="look" type="button">
+          <strong>回头确认</strong>
+          <small>看清他的位置 · 会耽搁时间</small>
+        </button>
+        <button class="action wide" data-action="lure" type="button">
+          <strong>踢响空罐</strong>
+          <small>把声音引向岔路，赌他不会立刻识破。</small>
+        </button>
+      </section>
+
+      <section class="hide-panel" id="hidePanel" aria-label="屏息">
+        <div class="hide-copy">
+          <span>臭味正在让喉咙发痒 · 按住填充憋气条</span>
+          <b id="breathRead">0%</b>
+        </div>
+        <div class="breath-track"><span id="breathFill"></span></div>
+        <button class="hold-button" id="holdButton" type="button">按住屏息</button>
+        <button class="leave-hide" id="leaveHideButton" type="button">忍不住了，推盖逃出去</button>
+      </section>
+    </div>
+
+    <div class="modal" id="startModal">
+      <div class="modal-card">
+        <div class="seal">01</div>
+        <p class="modal-kicker">BAIQI · RAIN STREET</p>
+        <h1>雨夜追逃</h1>
+        <p>六次选择，穿过一条没有路灯尽头的老街。噪声会让白起更接近你；出口在雨雾深处。</p>
+        <p class="content-note">本试玩含角色追逃与血腥处刑结局画面。</p>
+        <button class="primary" id="startButton" type="button">开始试玩</button>
+      </div>
+    </div>
+
+    <div class="modal hidden" id="endModal">
+      <div class="modal-card">
+        <p class="modal-kicker" id="endKicker">RUN COMPLETE</p>
+        <h2 id="endTitle">铁门外的雨声</h2>
+        <p id="endText"></p>
+        <button class="primary" id="restartButton" type="button">再跑一次</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (() => {
+      const $ = (id) => document.getElementById(id);
+      const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+      const pick = (items) => items[Math.floor(Math.random() * items.length)];
+
+      const MAX_TURNS = 6;
+      const state = {
+        turn: 1,
+        distance: 9,
+        noise: 20,
+        stamina: 100,
+        progress: 0,
+        active: false,
+        hidden: false,
+        holdCompleted: false,
+        ended: false,
+        holdFrame: 0,
+        holdLast: 0
+      };
+
+      const visual = $("visual");
+      const game = $("game");
+      const soundButton = $("soundButton");
+      const sprintButton = $("sprintButton");
+      const hidePanel = $("hidePanel");
+      const holdButton = $("holdButton");
+      const leaveHideButton = $("leaveHideButton");
+      let audio = null;
+
+      const text = {
+        advance: [
+          "你贴着潮湿的墙往前挪。白起停在原地，雨声盖住了你的脚步。",
+          "碎玻璃在鞋底下发涩，但没有响。前方的出口近了一点。",
+          "你借着停着的车绕开积水。身后那道青色目光没有立刻跟上来。"
+        ],
+        sprint: [
+          "你冲过一盏路灯。水花炸开，白起的脚步突然变得清晰。",
+          "鞋底拍击湿路面的声音太响了。你拉开距离，也把自己暴露在雨里。",
+          "你撞开雨幕，肺里烧得发疼。白起抬起了头。"
+        ],
+        look: [
+          "你只回了一次头。白起已经站在路灯边缘，正脸落在冷光里。",
+          "他看见你了，却没有追。那点微启的嘴唇像是在等你自己跑错方向。"
+        ],
+        lure: [
+          "空罐滚进岔路，在铁门上撞出一串回音。白起看向错误的方向。",
+          "你踢出的声音把街角的脚步引开了一瞬。但那声音也记住了你。"
+        ]
+      };
+
+      function setVisual(mode, duration = 0) {
+        visual.classList.remove("look-far", "look-close", "hide-mode");
+        if (mode) visual.classList.add(mode);
+        if (duration) {
+          window.clearTimeout(setVisual.timer);
+          setVisual.timer = window.setTimeout(() => {
+            visual.classList.remove("look-far", "look-close");
+          }, duration);
+        }
+      }
+
+      function dangerCopy() {
+        if (state.distance > 6.5) return "远得像一场错觉";
+        if (state.distance > 3.5) return "青色鬼火正在靠近";
+        if (state.distance > 1.5) return "他已经锁定你";
+        return "刀锋可及";
+      }
+
+      function render() {
+        const progressLeft = Math.max(0, 100 - state.progress);
+        const heroVisible = clamp((9 - state.distance) / 6, 0, 1);
+        if (!state.hidden && !state.ended) {
+          if (state.distance <= 2.2) setVisual("look-close");
+          else if (state.distance <= 4.2) setVisual("look-far");
+          else setVisual("");
+        }
+
+        $("turnRead").textContent = `回合 ${Math.min(state.turn, MAX_TURNS)} / ${MAX_TURNS}`;
+        $("distanceRead").textContent = `${Math.max(0, state.distance).toFixed(1)} m`;
+        $("distanceFill").style.width = `${clamp(state.distance / 9, 0, 1) * 100}%`;
+        $("distanceFill").style.background = state.distance < 2.5
+          ? "linear-gradient(90deg, #b83445, #ff6673)"
+          : (state.distance < 4.5
+            ? "linear-gradient(90deg, #c67826, #ffc46b)"
+            : "linear-gradient(90deg, #20a99c, #55f5dd)");
+        $("noiseRead").textContent = Math.round(state.noise);
+        $("noiseFill").style.width = `${clamp(state.noise, 0, 100)}%`;
+        $("staminaRead").textContent = Math.round(state.stamina);
+        $("staminaFill").style.width = `${clamp(state.stamina, 0, 100)}%`;
+        $("exitRead").textContent = `${Math.ceil(progressLeft)} m`;
+        $("escapeFill").style.width = `${clamp(state.progress, 0, 100)}%`;
+        $("dangerState").textContent = dangerCopy();
+        $("story").classList.toggle("danger-high", state.distance <= 4.2);
+        $("story").classList.toggle("danger-critical", state.distance <= 2.2);
+        $("heroLayer").style.opacity = state.hidden ? ".08" : String(.14 + heroVisible * .44);
+        sprintButton.disabled = state.stamina < 28 || state.hidden || state.ended;
+      }
+
+      function narrate(main, hint = "") {
+        $("narration").textContent = main;
+        $("whisper").textContent = hint;
+      }
+
+      function pulse() {
+        const flash = $("flash");
+        flash.classList.remove("pulse");
+        void flash.offsetWidth;
+        flash.classList.add("pulse");
+      }
+
+      function buzz(pattern) {
+        if ("vibrate" in navigator) navigator.vibrate(pattern);
+      }
+
+      function updateSoundButton() {
+        soundButton.textContent = `声音：${audio ? "开" : "关"}`;
+        soundButton.setAttribute("aria-pressed", String(Boolean(audio)));
+      }
+
+      function initAudio() {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return null;
+        const ctx = new AudioCtx();
+        const seconds = 2;
+        const buffer = ctx.createBuffer(1, ctx.sampleRate * seconds, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        let last = 0;
+        for (let i = 0; i < data.length; i += 1) {
+          const white = Math.random() * 2 - 1;
+          last = last * .82 + white * .18;
+          data[i] = last * .28;
+        }
+        const source = ctx.createBufferSource();
+        const filter = ctx.createBiquadFilter();
+        const gain = ctx.createGain();
+        source.buffer = buffer;
+        source.loop = true;
+        filter.type = "lowpass";
+        filter.frequency.value = 1500;
+        gain.gain.value = .055;
+        source.connect(filter).connect(gain).connect(ctx.destination);
+        source.start();
+        return { ctx, source, gain };
+      }
+
+      function toggleSound() {
+        if (audio) {
+          audio.source.stop();
+          audio.ctx.close();
+          audio = null;
+        } else {
+          audio = initAudio();
+        }
+        updateSoundButton();
+      }
+
+      function heroMovesAfterNoise() {
+        state.distance -= .65;
+        state.noise = clamp(state.noise - 3.5, 0, 100);
+        if (state.noise >= 74) {
+          state.distance -= state.noise >= 91 ? 2.5 : 1.55;
+          $("whisper").textContent = "回声没有立刻散去。白起改变了方向。";
+        }
+      }
+
+      function finishTurn(message, whisper) {
+        state.turn += 1;
+        heroMovesAfterNoise();
+        narrate(message, whisper || "");
+
+        if (state.progress >= 100) {
+          endGame("escape");
+          return;
+        }
+        if (state.distance <= 0) {
+          endGame("caught");
+          return;
+        }
+        if (state.turn > MAX_TURNS) {
+          endGame("caught", "最后一盏路灯熄灭时，你已经没有第六次选择。");
+          return;
+        }
+        state.hidden = false;
+        hidePanel.classList.remove("active");
+        $("controls").style.display = "grid";
+        render();
+      }
+
+      function runAction(action) {
+        if (!state.active || state.ended || state.hidden) return;
+        $("game").classList.remove("shake");
+        void $("game").offsetWidth;
+
+        if (action === "advance") {
+          state.progress = clamp(state.progress + 19 + Math.random() * 4, 0, 100);
+          state.distance = clamp(state.distance + 1.05, 0, 9);
+          state.noise = clamp(state.noise + 3, 0, 100);
+          state.stamina = clamp(state.stamina + 2, 0, 100);
+          finishTurn(pick(text.advance), "你在湿墙和车影之间推进了一段。");
+        }
+
+        if (action === "sprint") {
+          if (state.stamina < 28) return;
+          state.progress = clamp(state.progress + 32 + Math.random() * 5, 0, 100);
+          state.distance = clamp(state.distance + 2.45, 0, 9);
+          state.noise = clamp(state.noise + 21, 0, 100);
+          state.stamina = clamp(state.stamina - 30, 0, 100);
+          $("game").classList.add("shake");
+          pulse();
+          buzz([35, 35, 70]);
+          finishTurn(pick(text.sprint), "水花和呼吸声一起暴露了你。");
+        }
+
+        if (action === "hide") {
+          enterHide();
+        }
+
+        if (action === "look") {
+          state.progress = clamp(state.progress + 1.5, 0, 100);
+          state.distance = clamp(state.distance - .9, 0, 9);
+          state.noise = clamp(state.noise - 5, 0, 100);
+          pulse();
+          buzz(45);
+          finishTurn(
+            pick(text.look),
+            state.distance < 3
+              ? "他太近了。下一次移动必须立刻决断。"
+              : "他仍在远处，但你浪费了一小段时间。"
+          );
+          if (!state.ended) setVisual("look-close", 1700);
+        }
+
+        if (action === "lure") {
+          state.progress = clamp(state.progress + 3, 0, 100);
+          state.distance = clamp(state.distance + 2.8, 0, 9);
+          state.noise = clamp(state.noise + 31, 0, 100);
+          state.stamina = clamp(state.stamina - 3, 0, 100);
+          pulse();
+          finishTurn(pick(text.lure), "声音能骗人，也能让人记住你。");
+        }
+      }
+
+      function enterHide() {
+        state.hidden = true;
+        state.holdCompleted = false;
+        $("controls").style.display = "none";
+        hidePanel.classList.add("active");
+        setVisual("hide-mode");
+        $("breathFill").style.width = "0%";
+        $("breathRead").textContent = "0%";
+        holdButton.textContent = "按住屏息";
+        narrate(
+          "你掀开桶盖缩进去。腐烂的甜味立刻堵住鼻腔，白起的脚步越来越近。",
+          "按住“屏息”，填满蓄力条。臭味会让噪声持续上升。"
+        );
+        render();
+      }
+
+      function beginHold(event) {
+        if (!state.hidden || state.holdCompleted || state.ended) return;
+        event.preventDefault();
+        if (state.holdFrame) return;
+        let breath = parseFloat($("breathFill").style.width) || 0;
+        state.holdLast = performance.now();
+        holdButton.classList.add("holding");
+        holdButton.textContent = "屏住……";
+
+        const tick = (now) => {
+          if (!state.hidden || state.ended) return;
+          const dt = Math.min(80, now - state.holdLast);
+          state.holdLast = now;
+          breath = clamp(breath + dt * .034, 0, 100);
+          state.noise = clamp(state.noise + dt * .0058, 0, 100);
+          $("breathFill").style.width = `${breath}%`;
+          $("breathRead").textContent = `${Math.round(breath)}%`;
+          render();
+          if (state.noise >= 99.5) {
+            holdButton.classList.remove("holding");
+            state.holdFrame = 0;
+            narrate("你终于被臭味逼出了声音。垃圾桶的盖子从里面顶响。", "白起停在了桶前。");
+            buzz([20, 30, 20, 30, 120]);
+            state.hidden = false;
+            window.setTimeout(() => endGame("caught", "他低头看向垃圾桶时，你已经来不及推开盖子。"), 260);
+            return;
+          }
+          if (breath >= 100) {
+            completeHide();
+            return;
+          }
+          state.holdFrame = requestAnimationFrame(tick);
+        };
+        state.holdFrame = requestAnimationFrame(tick);
+      }
+
+      function endHold(event) {
+        if (!state.holdFrame || state.holdCompleted || state.ended) return;
+        cancelAnimationFrame(state.holdFrame);
+        state.holdFrame = 0;
+        holdButton.classList.remove("holding");
+        holdButton.textContent = "继续按住";
+        state.noise = clamp(state.noise + 3, 0, 100);
+        $("whisper").textContent = "松手时喉咙漏出一点气音。继续按，别让他听见。";
+        render();
+      }
+
+      function completeHide() {
+        cancelAnimationFrame(state.holdFrame);
+        state.holdFrame = 0;
+        state.holdCompleted = true;
+        holdButton.classList.remove("holding");
+        holdButton.textContent = "白起走过去了……";
+        state.progress = clamp(state.progress + 4, 0, 100);
+        state.distance = clamp(state.distance + 3.8, 0, 9);
+        state.noise = clamp(state.noise - 38, 0, 100);
+        state.stamina = clamp(state.stamina + 7, 0, 100);
+        buzz(35);
+        finishTurn(
+          "白起在垃圾桶外停了半步。你连呼吸都藏住了，他最终走向雨声更远的地方。",
+          "你从恶臭里换回了一段距离。盖子合上后才敢重新呼吸。"
+        );
+      }
+
+      function leaveHide() {
+        if (!state.hidden || state.ended) return;
+        if (state.holdFrame) {
+          cancelAnimationFrame(state.holdFrame);
+          state.holdFrame = 0;
+        }
+        state.hidden = false;
+        state.noise = clamp(state.noise + 26, 0, 100);
+        state.stamina = clamp(state.stamina - 8, 0, 100);
+        setVisual("");
+        $("game").classList.add("shake");
+        pulse();
+        buzz([25, 40, 70]);
+        finishTurn(
+          "盖子撞上铁桶。你没有再等，顺着店铺雨棚冲了出去。",
+          "金属回响替你争取了一点时间，也把白起引到了你原来躲着的位置。"
+        );
+      }
+
+      function endGame(type, customText = "") {
+        if (state.ended) return;
+        state.ended = true;
+        state.active = false;
+        if (state.holdFrame) cancelAnimationFrame(state.holdFrame);
+        holdButton.classList.remove("holding");
+        $("controls").style.display = "none";
+        hidePanel.classList.remove("active");
+        $("endModal").classList.remove("hidden");
+        $("endModal").classList.toggle("caught", type === "caught");
+        visual.classList.remove("look-far", "look-close", "hide-mode", "ending-caught");
+
+        if (type === "caught") {
+          state.distance = 0;
+          visual.classList.add("ending-caught");
+          $("endKicker").textContent = "CHASE END / CAUGHT";
+          $("endTitle").textContent = "你被追上了";
+          $("endText").textContent = customText || "白起没有奔跑。他只是在你力气用完的时候，走到了你面前。";
+          pulse();
+          buzz([80, 50, 140]);
+        } else {
+          $("endKicker").textContent = "CHASE END / ESCAPED";
+          $("endTitle").textContent = "你活过了这场雨";
+          $("endText").textContent = "铁门在身后合拢。街对面没有脚步声，只有雨。";
+          state.distance = Math.max(state.distance, 2);
+          render();
+        }
+      }
+
+      function startGame() {
+        Object.assign(state, {
+          turn: 1,
+          distance: 9,
+          noise: 20,
+          stamina: 100,
+          progress: 0,
+          active: true,
+          hidden: false,
+          holdCompleted: false,
+          ended: false
+        });
+        visual.classList.remove("ending-caught", "look-far", "look-close", "hide-mode");
+        $("controls").style.display = "grid";
+        hidePanel.classList.remove("active");
+        $("endModal").classList.add("hidden");
+        $("startModal").classList.add("hidden");
+        narrate(
+          "雨把旧街切成一段一段。白起的靴声停在街角，他仍没有叫出你的名字。",
+          "先看距离和噪声，再决定下一步。回头不推进，但能确认他到底离你多近。"
+        );
+        render();
+      }
+
+      document.querySelectorAll("[data-action]").forEach((button) => {
+        button.addEventListener("click", () => runAction(button.dataset.action));
+      });
+      $("startButton").addEventListener("click", startGame);
+      $("restartButton").addEventListener("click", startGame);
+      soundButton.addEventListener("click", toggleSound);
+      holdButton.addEventListener("pointerdown", beginHold);
+      holdButton.addEventListener("pointerup", endHold);
+      holdButton.addEventListener("pointercancel", endHold);
+      holdButton.addEventListener("pointerleave", endHold);
+      leaveHideButton.addEventListener("click", leaveHide);
+      window.addEventListener("keydown", (event) => {
+        if (event.code === "Space" && state.hidden) beginHold(event);
+      });
+      window.addEventListener("keyup", (event) => {
+        if (event.code === "Space" && state.hidden) endHold(event);
+      });
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden && state.hidden) endHold();
+      });
+
+      const preload = [
+        "generated/chase-baiqi-street-face-mobile.webp",
+        "generated/chase-baiqi-street-close-mobile.webp",
+        "generated/exec4-baiqi.jpg"
+      ];
+      preload.forEach((src) => {
+        const image = new Image();
+        image.src = src;
+      });
+      render();
+    })();
+  </script>
+</body>
+</html>
