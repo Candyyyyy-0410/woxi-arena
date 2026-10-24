@@ -3418,7 +3418,7 @@
         const brutalHeroKey = CHASE_MODE.heroKey === "shouyue"
           ? "baishouyue"
           : CHASE_MODE.heroKey;
-        const started = window.__chaseBrutal(brutalHeroKey, finishExecution);
+        const started = window.__chaseBrutal(brutalHeroKey, CHASE_MODE.sceneKey, finishExecution);
         if (started) return;
       }
       finishExecution();
@@ -3805,7 +3805,7 @@
     "generated/chase-hanxin-castle-undercroft-v1-mobile.webp",
     "generated/chase-hanxin-castle-gate-v1-mobile.webp"
   ].concat(chaseAssets.map(function (item) {
-    return "generated/" + (item.p || mobileAsset(item.f));
+    return "generated/" + (item.p || item.f);
   })).filter(function (src, index, list) {
     return list.indexOf(src) === index;
   });

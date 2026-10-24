@@ -1115,5 +1115,16 @@ window.CHASE_GALLERY_ASSETS = [
   { f: "chase-baiqi-street-legs-close-v1.jpg", p: "chase-baiqi-street-legs-close-v1-mobile.webp", c: "腿部近景 · 白起 · 深青黑金边双靴" },
   { f: "chase-hanxin-street-legs-close-v1.jpg", p: "chase-hanxin-street-legs-close-v1-mobile.webp", c: "腿部近景 · 韩信 · 银甲长靴" },
   { f: "chase-shouyue-street-legs-close-v1.jpg", p: "chase-shouyue-street-legs-close-v1-mobile.webp", c: "腿部近景 · 守约 · 银蓝战靴" },
-  { f: "chase-zhugeliang-street-legs-close-v1.jpg", p: "chase-zhugeliang-street-legs-close-v1-mobile.webp", c: "腿部近景 · 诸葛亮 · 黑金双靴" }
+  { f: "chase-zhugeliang-street-legs-close-v1.jpg", p: "chase-zhugeliang-street-legs-close-v1-mobile.webp", c: "腿部近景 · 诸葛亮 · 黑金双靴" },
+  { f: "cmd111-executions-v1/exec-cmd111-baiqi-street-drag-v4.jpg", p: "cmd111-executions-v1/exec-cmd111-baiqi-street-drag-v4-mobile.webp", c: "追逃新处刑 · 白起 · 夜街拖行 v4" },
+  { f: "cmd111-executions-v1/exec-cmd111-baiqi-behead-v3.jpg", p: "cmd111-executions-v1/exec-cmd111-baiqi-behead-v3-mobile.webp", c: "追逃新处刑 · 白起 · 斩首 v3" },
+  { f: "cmd113-shouyue-solo-executions-v1/exec-cmd113-shouyue-cold-storage-v1.jpg", p: "cmd113-shouyue-solo-executions-v1/exec-cmd113-shouyue-cold-storage-v1-mobile.webp", c: "追逃新处刑 · 守约 · 冷库" },
+  { f: "cmd113-shouyue-solo-executions-v1/exec-cmd113-shouyue-shutter-v1.jpg", p: "cmd113-shouyue-solo-executions-v1/exec-cmd113-shouyue-shutter-v1-mobile.webp", c: "追逃新处刑 · 守约 · 卷闸" },
+  { f: "cmd113-shouyue-solo-executions-v1/exec-cmd113-shouyue-lift-v1.jpg", p: "cmd113-shouyue-solo-executions-v1/exec-cmd113-shouyue-lift-v1-mobile.webp", c: "追逃新处刑 · 守约 · 升降台" },
+  { f: "cmd113-shouyue-victim-executions-v1/exec-cmd113-shouyue-cold-storage-victim-v1.jpg", p: "cmd113-shouyue-victim-executions-v1/exec-cmd113-shouyue-cold-storage-victim-v1-mobile.webp", c: "追逃新处刑 · 守约与受害者 · 冷库 v1" },
+  { f: "cmd113-shouyue-victim-executions-v1/exec-cmd113-shouyue-shutter-victim-v1.jpg", p: "cmd113-shouyue-victim-executions-v1/exec-cmd113-shouyue-shutter-victim-v1-mobile.webp", c: "追逃新处刑 · 守约与受害者 · 卷闸 v1" },
+  { f: "cmd113-shouyue-victim-executions-v1/exec-cmd113-shouyue-lift-victim-v1.jpg", p: "cmd113-shouyue-victim-executions-v1/exec-cmd113-shouyue-lift-victim-v1-mobile.webp", c: "追逃新处刑 · 守约与受害者 · 升降台 v1" },
+  { f: "cmd113-shouyue-victim-executions-v2/exec-cmd113-shouyue-cold-storage-victim-v2.jpg", p: "cmd113-shouyue-victim-executions-v2/exec-cmd113-shouyue-cold-storage-victim-v2-mobile.webp", c: "追逃新处刑 · 守约与受害者 · 冷库强化 v2" },
+  { f: "cmd113-shouyue-victim-executions-v2/exec-cmd113-shouyue-shutter-victim-v2.jpg", p: "cmd113-shouyue-victim-executions-v2/exec-cmd113-shouyue-shutter-victim-v2-mobile.webp", c: "追逃新处刑 · 守约与受害者 · 卷闸强化 v2" },
+  { f: "cmd113-shouyue-victim-executions-v2/exec-cmd113-shouyue-lift-victim-v2.jpg", p: "cmd113-shouyue-victim-executions-v2/exec-cmd113-shouyue-lift-victim-v2-mobile.webp", c: "追逃新处刑 · 守约与受害者 · 升降台强化 v2" }
 ];

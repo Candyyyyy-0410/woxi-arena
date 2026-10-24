@@ -17323,18 +17323,36 @@ function socialExtraCards() {
   })();
   window.__brutalPreview = brutalPreviewOpen;
   window.__brutalPlay = function (hero, id) { return brutalPreviewPlay(hero || 'baiqi', id); };
-  window.__chaseBrutal = function (hero, done) {
+  var CHASE_BRUTAL_SCENE_IDS = {
+    baiqi: {
+      street: ['baiqi-rope-bike', 'baiqi-behead']
+    },
+    baishouyue: {
+      warehouse: ['baishouyue-cable', 'baishouyue-shutter-crush', 'baishouyue-lift-crush']
+    }
+  };
+  window.__chaseBrutal = function (hero, chaseScene, done) {
     if (typeof hero === 'function') {
       done = hero;
       hero = 'baiqi';
+      chaseScene = '';
+    } else if (typeof chaseScene === 'function') {
+      done = chaseScene;
+      chaseScene = '';
     }
-    const scene = brutalPickScene(hero || 'baiqi', 'me');
+    const key = hero || 'baiqi';
+    const preferredIds = ((CHASE_BRUTAL_SCENE_IDS[key] || {})[chaseScene] || []);
+    const pool = brutalHeroScenes(key, 'me');
+    const preferred = preferredIds.map(function (id) {
+      return pool.filter(function (scene) { return scene.id === id; })[0];
+    }).filter(Boolean);
+    const scene = preferred.length ? pick(preferred) : brutalPickScene(key, 'me');
     if (!scene) {
       if (done) setTimeout(done, 0);
       return false;
     }
     return brutalPlayScene(scene, 'me', {
-      heroKey: hero,
+      heroKey: key,
       done: done || null
     });
   };
@@ -17351,7 +17369,12 @@ function socialExtraCards() {
     const out = {};
     BRUTAL_HERO_ORDER.forEach(function (key) {
       out[key] = (all[key] || []).map(function (s) {
-        return { id: s.id, title: s.title, me: s.me.length, kin: s.kin.length };
+        return {
+          id: s.id,
+          title: s.title,
+          me: Array.isArray(s.me) ? s.me.length : 0,
+          kin: Array.isArray(s.kin) ? s.kin.length : 0
+        };
       });
     });
     return {
@@ -17943,6 +17966,7 @@ function socialExtraCards() {
     function closeLog(){ var ov = document.getElementById('logOverlay'); if (ov) ov.classList.remove('show'); }
     var cgBuilt = false;
     var cgIdx = 0;
+    var cgPreloadTicket = 0;
     var CG_TAB_NAMES = ['澜', '韩信', '冥王铠', '神罪铠', '守约', '白起', '诸葛', '赵云', '狂铁', '莱西奥', '曜', '杂物', '追逃'];
     function cgTabName(i, b){
       var fullName = String(b.n || '');
@@ -17958,11 +17982,39 @@ function socialExtraCards() {
         return '<div class="cg-th" data-src="generated/' + escR18(im.f) + '" data-cap="' + escR18(im.c) + '"><img loading="lazy" src="generated/' + escR18(preview) + '" alt="' + escR18(im.c) + '"><span>' + escR18(im.c) + '</span></div>';
       }).join('') + '</div></div>';
     }
+    function cgPreloadBlock(block){
+      var ticket = ++cgPreloadTicket;
+      var queue = (block && block.imgs ? block.imgs : []).map(function(im){
+        return 'generated/' + (im.p || im.f);
+      }).filter(function(src, index, all){
+        return src && all.indexOf(src) === index;
+      });
+      var cursor = 0;
+      var active = 0;
+      function pump(){
+        if (ticket !== cgPreloadTicket) return;
+        while (active < 3 && cursor < queue.length) {
+          var image = new Image();
+          active += 1;
+          image.decoding = 'async';
+          if ('fetchPriority' in image) image.fetchPriority = 'low';
+          var release = function(){
+            active = Math.max(0, active - 1);
+            pump();
+          };
+          image.onload = release;
+          image.onerror = release;
+          image.src = queue[cursor++];
+        }
+      }
+      pump();
+    }
     function cgRenderBlock(i){
       var body = document.getElementById('cgBody'); if (!body) return;
       var b = CG_BLOCKS[i]; if (!b) return;
       cgIdx = i;
       body.innerHTML = cgHeroHTML(b);
+      cgPreloadBlock(b);
       var tabs = document.getElementById('cgTabs');
       if (tabs) Array.prototype.slice.call(tabs.children).forEach(function(x, k){ x.className = (k === i) ? 'cg-tab on' : 'cg-tab'; });
       body.scrollTop = 0;
@@ -19341,7 +19393,7 @@ if (typeof module !== 'undefined' && module.exports) {
 <script src="chase-mode.js"></script>
 <script>
 /* 离线缓存 + 自动更新: 电脑上改完重推, 手机下次联网打开就自动换新版 */
-window.__BUILD__ = '7d5048cbe0';
+window.__BUILD__ = '4a9e28b487';
 (function () {
   if (!('serviceWorker' in navigator) || location.protocol.indexOf('http') !== 0) return;
 
