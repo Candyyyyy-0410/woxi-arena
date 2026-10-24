@@ -3811,8 +3811,13 @@
   });
   let chasePreloading = 0;
   let chaseQueueIndex = 0;
+  let chaseDeferredStarted = false;
+  const CHASE_INITIAL_LIMIT = 6;
   function preloadNextChaseImage() {
     if (chaseQueueIndex >= chaseQueue.length) return;
+    if (!chaseDeferredStarted && chaseQueueIndex >= CHASE_INITIAL_LIMIT) return;
+    const concurrency = chaseDeferredStarted ? 1 : 2;
+    if (chasePreloading >= concurrency) return;
     const image = new Image();
     const done = function () {
       chasePreloading = Math.max(0, chasePreloading - 1);
@@ -3824,7 +3829,11 @@
     image.onerror = done;
     image.src = chaseQueue[chaseQueueIndex++];
   }
-  for (let i = 0; i < 3; i++) preloadNextChaseImage();
+  for (let i = 0; i < 2; i++) preloadNextChaseImage();
+  setTimeout(function () {
+    chaseDeferredStarted = true;
+    preloadNextChaseImage();
+  }, 10000);
 
   window.__chaseMode = {
     open: openPicker,
